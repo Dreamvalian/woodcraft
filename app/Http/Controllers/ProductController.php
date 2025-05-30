@@ -4,62 +4,178 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Cart;
+use App\Models\Category;
 use App\Http\Requests\AddToCartRequest;
+use App\Http\Requests\UpdateCartQuantityRequest;
 use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\RateLimiter;
-use App\Models\Category;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProductController extends Controller
 {
     protected $cartService;
+    protected const CACHE_TTL = 3600; // 1 hour
+    protected const RATE_LIMIT_ATTEMPTS = 5;
+    protected const RATE_LIMIT_DECAY = 60; // 1 minute
 
     public function __construct(CartService $cartService)
     {
         $this->cartService = $cartService;
+        $this->middleware('cache.headers:public;max_age=3600;etag')->only(['index', 'show']);
     }
 
-    // Show all products
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'reviews']);
+        $cacheKey = 'products_' . md5($request->fullUrl());
+        
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($request) {
+            $query = Product::with(['category', 'reviews'])
+                          ->withAvg('reviews', 'rating')
+                          ->withCount('reviews');
 
+            // Apply filters using scopes
+            $this->applyFilters($query, $request);
+            
+            // Apply sorting
+            $this->applySorting($query, $request);
+
+            $products = $query->paginate(12)->withQueryString();
+            
+            // Get categories and materials for filters
+            $categories = Category::withCount('products')->get();
+            $materials = Product::distinct()->pluck('material')->filter();
+
+            return view('products.index', compact('products', 'categories', 'materials'));
+        });
+    }
+
+    public function show(Product $product)
+    {
+        $product->load(['category', 'reviews.user', 'images']);
+        
+        // Get related products
+        $relatedProducts = $this->getRelatedProducts($product);
+        
+        // Update recently viewed
+        $this->updateRecentlyViewed($product);
+
+        return view('products.show', compact('product', 'relatedProducts'));
+    }
+
+    public function addToCart(AddToCartRequest $request)
+    {
+        try {
+            $this->checkRateLimit();
+
+            $result = $this->cartService->addToCart(
+                $request->product_id,
+                $request->quantity,
+                auth()->id()
+            );
+
+            return response()->json($result);
+        } catch (\Exception $e) {
+            Log::error('Add to cart failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to add item to cart. Please try again.'
+            ], 500);
+        }
+    }
+
+    public function removeFromCart($id)
+    {
+        try {
+            $result = $this->cartService->removeFromCart($id, auth()->id());
+            return response()->json($result);
+        } catch (\Exception $e) {
+            Log::error('Remove from cart failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to remove item from cart. Please try again.'
+            ], 500);
+        }
+    }
+
+    public function updateCartQuantity(UpdateCartQuantityRequest $request, $id)
+    {
+        try {
+            $result = $this->cartService->updateCartQuantity(
+                $id,
+                $request->quantity,
+                auth()->id()
+            );
+
+            return response()->json($result);
+        } catch (\Exception $e) {
+            Log::error('Update cart quantity failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update cart quantity. Please try again.'
+            ], 500);
+        }
+    }
+
+    public function quickView(Product $product)
+    {
+        return response()->json([
+            'id' => $product->id,
+            'name' => $product->name,
+            'description' => Str::limit($product->description, 100),
+            'price' => $product->price,
+            'sale_price' => $product->sale_price,
+            'formatted_price' => $product->formatted_price,
+            'formatted_sale_price' => $product->formatted_sale_price,
+            'discount_percentage' => $product->discount_percentage,
+            'image_url' => $product->image_url,
+            'min_order_quantity' => $product->min_order_quantity,
+            'max_order_quantity' => $product->max_order_quantity,
+            'stock' => $product->stock,
+            'average_rating' => $product->average_rating,
+            'total_reviews' => $product->total_reviews
+        ]);
+    }
+
+    protected function applyFilters(Builder $query, Request $request): void
+    {
         // Search
-        if ($request->has('search')) {
-            $search = $request->get('search');
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%")
-                  ->orWhere('material', 'like', "%{$search}%");
-            });
+        if ($request->filled('search')) {
+            $query->search($request->get('search'));
         }
 
         // Category filter
-        if ($request->has('category') && $request->get('category')) {
-            $query->where('category_id', $request->get('category'));
+        if ($request->filled('category')) {
+            $query->byCategory($request->get('category'));
         }
 
         // Price range filter
-        if ($request->has('min_price')) {
-            $query->where('price', '>=', $request->get('min_price'));
-        }
-        if ($request->has('max_price')) {
-            $query->where('price', '<=', $request->get('max_price'));
+        if ($request->filled(['min_price', 'max_price'])) {
+            $query->byPriceRange(
+                $request->get('min_price'),
+                $request->get('max_price')
+            );
         }
 
         // Material filter
-        if ($request->has('material')) {
-            $query->where('material', $request->get('material'));
+        if ($request->filled('material')) {
+            $query->byMaterial($request->get('material'));
         }
 
         // Availability filter
-        if ($request->has('in_stock')) {
-            $query->where('stock', '>', 0);
+        if ($request->boolean('in_stock')) {
+            $query->inStock();
         }
 
-        // Sorting
+        // Active products only
+        $query->active();
+    }
+
+    protected function applySorting(Builder $query, Request $request): void
+    {
         switch ($request->get('sort', 'newest')) {
             case 'price_asc':
                 $query->orderBy('price', 'asc');
@@ -74,108 +190,52 @@ class ProductController extends Controller
                 $query->orderBy('name', 'desc');
                 break;
             case 'popular':
-                $query->withCount('reviews')
-                      ->orderBy('reviews_count', 'desc');
+                $query->orderBy('reviews_count', 'desc');
                 break;
             case 'rating':
-                $query->withAvg('reviews', 'rating')
-                      ->orderBy('reviews_avg_rating', 'desc');
+                $query->orderBy('reviews_avg_rating', 'desc');
                 break;
             default:
                 $query->latest();
                 break;
         }
-
-        $products = $query->paginate(12)->withQueryString();
-        $categories = Category::withCount('products')->get();
-        $materials = Product::distinct()->pluck('material')->filter();
-
-        return view('products.index', compact('products', 'categories', 'materials'));
     }
 
-    // Show product details
-    public function show(Product $product)
+    protected function getRelatedProducts(Product $product)
     {
-        $product->load(['category', 'reviews.user', 'productImages']);
-        
-        // Get related products from the same category
-        $relatedProducts = Product::where('category_id', $product->category_id)
+        return Product::where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->with(['category', 'reviews'])
             ->withAvg('reviews', 'rating')
             ->inRandomOrder()
             ->take(4)
             ->get();
+    }
 
-        // Get recently viewed products
+    protected function updateRecentlyViewed(Product $product): void
+    {
         $recentlyViewed = session()->get('recently_viewed', []);
-        if (!in_array($product->id, $recentlyViewed)) {
-            array_unshift($recentlyViewed, $product->id);
-            $recentlyViewed = array_slice($recentlyViewed, 0, 4);
-            session()->put('recently_viewed', $recentlyViewed);
-        }
-
-        return view('products.show', compact('product', 'relatedProducts'));
+        
+        // Remove the current product if it exists
+        $recentlyViewed = array_diff($recentlyViewed, [$product->id]);
+        
+        // Add the current product to the beginning
+        array_unshift($recentlyViewed, $product->id);
+        
+        // Keep only the last 4 products
+        $recentlyViewed = array_slice($recentlyViewed, 0, 4);
+        
+        session()->put('recently_viewed', $recentlyViewed);
     }
 
-    // Add to cart
-    public function addToCart(AddToCartRequest $request)
+    protected function checkRateLimit(): void
     {
-        // Rate limiting
         $key = 'add-to-cart:' . (auth()->id() ?? request()->ip());
-        if (RateLimiter::tooManyAttempts($key, 5)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Too many attempts. Please try again later.'
-            ], 429);
+        
+        if (RateLimiter::tooManyAttempts($key, self::RATE_LIMIT_ATTEMPTS)) {
+            throw new \Exception('Too many attempts. Please try again later.');
         }
-        RateLimiter::hit($key);
-
-        $result = $this->cartService->addToCart(
-            $request->product_id,
-            $request->quantity,
-            auth()->id()
-        );
-
-        return response()->json($result);
-    }
-
-    // Remove from cart
-    public function removeFromCart($id)
-    {
-        $result = $this->cartService->removeFromCart($id, auth()->id());
-        return response()->json($result);
-    }
-
-    // Update cart quantity
-    public function updateCartQuantity(Request $request, $id)
-    {
-        $request->validate([
-            'quantity' => 'required|integer|min:1|max:99'
-        ]);
-
-        $result = $this->cartService->updateCartQuantity(
-            $id,
-            $request->quantity,
-            auth()->id()
-        );
-
-        return response()->json($result);
-    }
-
-    public function quickView(Product $product)
-    {
-        return response()->json([
-            'id' => $product->id,
-            'name' => $product->name,
-            'description' => $product->description,
-            'price' => $product->price,
-            'sale_price' => $product->sale_price,
-            'formatted_price' => $product->formatted_price,
-            'image_url' => $product->image_url,
-            'min_order_quantity' => $product->min_order_quantity,
-            'max_order_quantity' => $product->max_order_quantity,
-            'stock' => $product->stock
-        ]);
+        
+        RateLimiter::hit($key, self::RATE_LIMIT_DECAY);
     }
 }

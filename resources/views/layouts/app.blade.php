@@ -65,9 +65,67 @@
          x-on:loading.window="loading = true"
          x-on:loaded.window="loading = false"
          x-show="loading"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
          x-cloak
          class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-2 border-primary-500 border-t-transparent"></div>
+        <div class="flex flex-col items-center space-y-4">
+            <div class="animate-spin rounded-full h-12 w-12 border-3 border-wood-500 border-t-transparent"></div>
+            <p class="text-wood-700 font-medium">Loading...</p>
+        </div>
+    </div>
+
+    {{-- Toast Notifications --}}
+    <div x-data="{ 
+        toasts: [],
+        addToast(message, type = 'success') {
+            const id = Date.now();
+            this.toasts.push({ id, message, type });
+            setTimeout(() => this.removeToast(id), 5000);
+        },
+        removeToast(id) {
+            this.toasts = this.toasts.filter(toast => toast.id !== id);
+        }
+    }" 
+    x-on:notify.window="addToast($event.detail.message, $event.detail.type)"
+    class="fixed top-4 right-4 z-50 space-y-4">
+        <template x-for="toast in toasts" :key="toast.id">
+            <div x-show="true"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 transform translate-x-2"
+                 x-transition:enter-end="opacity-100 transform translate-x-0"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 transform translate-x-0"
+                 x-transition:leave-end="opacity-0 transform translate-x-2"
+                 :class="{
+                    'bg-green-50 text-green-800 border-green-100': toast.type === 'success',
+                    'bg-red-50 text-red-800 border-red-100': toast.type === 'error',
+                    'bg-blue-50 text-blue-800 border-blue-100': toast.type === 'info',
+                    'bg-yellow-50 text-yellow-800 border-yellow-100': toast.type === 'warning'
+                 }"
+                 class="px-6 py-3 rounded-lg shadow-soft border flex items-center space-x-3">
+                <template x-if="toast.type === 'success'">
+                    <i class="fas fa-check-circle text-green-500"></i>
+                </template>
+                <template x-if="toast.type === 'error'">
+                    <i class="fas fa-exclamation-circle text-red-500"></i>
+                </template>
+                <template x-if="toast.type === 'info'">
+                    <i class="fas fa-info-circle text-blue-500"></i>
+                </template>
+                <template x-if="toast.type === 'warning'">
+                    <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                </template>
+                <span x-text="toast.message"></span>
+                <button @click="removeToast(toast.id)" class="ml-auto text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </template>
     </div>
 
     @include('layouts.header')
@@ -77,37 +135,19 @@
         {{-- Flash Messages --}}
         @if(session('success'))
             <div x-data="{ show: true }"
-                 x-show="show"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 transform translate-y-2"
-                 x-transition:enter-end="opacity-100 transform translate-y-0"
-                 x-transition:leave="transition ease-in duration-200"
-                 x-transition:leave-start="opacity-100 transform translate-y-0"
-                 x-transition:leave-end="opacity-0 transform translate-y-2"
-                 x-init="setTimeout(() => show = false, 3000)"
-                 class="fixed top-4 right-4 bg-green-50 text-green-800 px-6 py-3 rounded-lg shadow-soft z-50 border border-green-100">
-                <div class="flex items-center space-x-2">
-                    <i class="fas fa-check-circle text-green-500"></i>
-                    <span>{{ session('success') }}</span>
-                </div>
+                 x-init="window.dispatchEvent(new CustomEvent('notify', { 
+                     detail: { message: '{{ session('success') }}', type: 'success' }
+                 }))"
+                 x-show="false">
             </div>
         @endif
 
         @if(session('error'))
             <div x-data="{ show: true }"
-                 x-show="show"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 transform translate-y-2"
-                 x-transition:enter-end="opacity-100 transform translate-y-0"
-                 x-transition:leave="transition ease-in duration-200"
-                 x-transition:leave-start="opacity-100 transform translate-y-0"
-                 x-transition:leave-end="opacity-0 transform translate-y-2"
-                 x-init="setTimeout(() => show = false, 3000)"
-                 class="fixed top-4 right-4 bg-red-50 text-red-800 px-6 py-3 rounded-lg shadow-soft z-50 border border-red-100">
-                <div class="flex items-center space-x-2">
-                    <i class="fas fa-exclamation-circle text-red-500"></i>
-                    <span>{{ session('error') }}</span>
-                </div>
+                 x-init="window.dispatchEvent(new CustomEvent('notify', { 
+                     detail: { message: '{{ session('error') }}', type: 'error' }
+                 }))"
+                 x-show="false">
             </div>
         @endif
 

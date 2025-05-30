@@ -66,18 +66,20 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Cart Routes
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['web'])->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
-    Route::patch('/cart/update/{cart}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/remove/{cart}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update/{itemId}', [CartController::class, 'update'])->name('cart.update');
+    Route::post('/cart/remove/{itemId}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+    Route::get('/cart/summary', [CartController::class, 'summary'])->name('cart.summary');
 });
 
 // Checkout Routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
-    Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
 });
 
 // ========== After Login ==========
@@ -154,5 +156,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/products/{product}/notify-price-drop', [NotificationController::class, 'notifyPriceDrop'])->name('notifications.price-drop');
 });
 
-// Include Breeze Auth Routes
+// Include Modular Route Files
 require __DIR__.'/auth.php';
+require __DIR__.'/shop.php';
+require __DIR__.'/user.php';
+require __DIR__.'/admin.php';
+require __DIR__.'/legal.php';
+require __DIR__.'/cart.php';
