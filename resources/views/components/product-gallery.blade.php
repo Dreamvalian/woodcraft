@@ -67,6 +67,7 @@
       {{-- Thumbnails --}}
       <div class="flex justify-center gap-2 mt-4">
         @foreach($product->images as $index => $image)
+<<<<<<< HEAD
       <button @click="activeImage = {{ $index }}" class="w-16 h-16 rounded-lg overflow-hidden border-2 transition"
         class="activeImage === {{ $index }} ? 'border-wood' : 'border-transparent hover:border-gray-300'">
         <img src="{{ $image }}" alt="{{ $product->name }} - Thumbnail {{ $index + 1 }}"
@@ -74,6 +75,81 @@
       </button>
     @endforeach
       </div>
+=======
+            <button 
+                @click="activeImage = {{ $index }}"
+                class="aspect-square rounded-lg overflow-hidden border-2 transition"
+                class="activeImage === {{ $index }} ? 'border-wood' : 'border-transparent hover:border-gray-300'"
+            >
+                <img 
+                    src="{{ $image }}" 
+                    alt="{{ $product->name }} - Thumbnail {{ $index + 1 }}"
+                    class="w-full h-full object-cover"
+                >
+            </button>
+        @endforeach
+    </div>
+
+    {{-- Lightbox --}}
+    <div 
+        x-show="lightboxOpen"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center"
+        @click.self="lightboxOpen = false"
+    >
+        <div class="relative max-w-7xl mx-auto px-4">
+            {{-- Close Button --}}
+            <button 
+                @click="lightboxOpen = false"
+                class="absolute top-4 right-4 text-white hover:text-wood transition"
+            >
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+
+            {{-- Navigation Buttons --}}
+            <button 
+                @click="activeImage = (activeImage - 1 + {{ count($product->images) }}) % {{ count($product->images) }}"
+                class="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-wood transition"
+            >
+                <i class="fas fa-chevron-left text-2xl"></i>
+            </button>
+            <button 
+                @click="activeImage = (activeImage + 1) % {{ count($product->images) }}"
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-wood transition"
+            >
+                <i class="fas fa-chevron-right text-2xl"></i>
+            </button>
+
+            {{-- Main Image --}}
+            <img 
+                src="{{ $product->images[$activeImage] }}" 
+                alt="{{ $product->name }}"
+                class="max-h-[80vh] max-w-full object-contain"
+            >
+
+            {{-- Thumbnails --}}
+            <div class="flex justify-center gap-2 mt-4">
+                @foreach($product->images as $index => $image)
+                    <button 
+                        @click="activeImage = {{ $index }}"
+                        class="w-16 h-16 rounded-lg overflow-hidden border-2 transition"
+                        class="activeImage === {{ $index }} ? 'border-wood' : 'border-transparent hover:border-gray-300'"
+                    >
+                        <img 
+                            src="{{ $image }}" 
+                            alt="{{ $product->name }} - Thumbnail {{ $index + 1 }}"
+                            class="w-full h-full object-cover"
+                        >
+                    </button>
+                @endforeach
+            </div>
+        </div>
+>>>>>>> ad484e0144e9c8627f52bb0e0aba79edc31ac7bb
     </div>
   </div>
 </div>
