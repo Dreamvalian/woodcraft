@@ -10,159 +10,164 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
-    {
-        $query = Product::query();
+	public function index(Request $request)
+	{
+		$query = Product::query();
 
-        // Search
-        if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
+		// Search
+		if ($request->has('search')) {
+			$search = $request->search;
+			$query->where(function ($q) use ($search) {
+				$q->where('name', 'like', "%{$search}%")
+					->orWhere('description', 'like', "%{$search}%");
+			});
+		}
 
-        // Category filter
-        // if ($request->has('category') && $request->category !== '') {
-        //     $query->where('category', $request->category);
-        // }
+		// Category filter
+		// if ($request->has('category') && $request->category !== '') {
+		//     $query->where('category', $request->category);
+		// }
 
-        // Sorting
-        if ($request->has('sort')) {
-            $sort = explode('_', $request->sort);
-            $query->orderBy($sort[0], $sort[1]);
-        } else {
-            $query->latest();
-        }
+		// Sorting
+		if ($request->has('sort')) {
+			$sort = explode('_', $request->sort);
+			$query->orderBy($sort[0], $sort[1]);
+		} else {
+			$query->latest();
+		}
 
-        /** @var \Illuminate\Pagination\LengthAwarePaginator $query */
-        $products = $query->paginate(10)->withQueryString();
-        // $categories = Product::distinct()->pluck('category');
+		/** @var \Illuminate\Pagination\LengthAwarePaginator $query */
+		$products = $query->paginate(10)->withQueryString();
+		// $categories = Product::distinct()->pluck('category');
 
-        // return view('admin.products.index', compact('products', 'categories'));
-        return view('admin.products.index', compact('products'));
-    }
+		// return view('admin.products.index', compact('products', 'categories'));
+		return view('admin.products.index', compact('products'));
+	}
 
-    public function create()
-    {
-        return view('admin.products.create');
-    }
+	public function create()
+	{
+		return view('admin.products.create');
+	}
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            // 'category' => 'required|string|max:255',
-            'model' => 'nullable|string|max:255',
-            // 'features' => 'nullable|json',
-        ]);
+	public function store(Request $request)
+	{
+		$validated = $request->validate([
+			'name' => 'required|string|max:255',
+			'slug' => 'required|string|max:255|unique:products',
+			'description' => 'required|string',
+			'price' => 'required|numeric|min:0',
+			'sale_price' => 'nullable|numeric|min:0|lt:price',
+			'stock' => 'required|integer|min:0',
+			'min_order_quantity' => 'required|integer|min:1',
+			'max_order_quantity' => 'nullable|integer|min:1|gt:min_order_quantity',
+			'is_active' => 'boolean',
+			'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+		]);
 
-        // dd($request->hasFile('image'));
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $filename = Str::slug($request->name) . '-' . time() . '.' . $image->getClientOriginalExtension();
-            $path = $image->storeAs('products', $filename, 'public');
-            $validated['image_url'] = $path;
-            // dd([$image, $filename, $path, $validated['image_url']]);
-        }
+		// Handle image upload
+		if ($request->hasFile('image')) {
+			$image = $request->file('image');
+			$filename = Str::slug($request->name) . '-' . time() . '.' . $image->getClientOriginalExtension();
+			$path = $image->storeAs('products', $filename, 'public');
+			$validated['image_url'] = Storage::url($path);
+		}
 
-        Product::create($validated);
+		// Remove the image field from validated data as it's not in the database
+		unset($validated['image']);
 
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Product created successfully.');
-    }
+		// Create the product
+		$product = Product::create($validated);
 
-    public function edit(Product $product)
-    {
-        return view('admin.products.edit', compact('product'));
-    }
+		return redirect()->route('admin.products.index')
+			->with('success', 'Product created successfully.');
+	}
 
-    public function update(Request $request, Product $product)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:products,slug,' . $product->id,
-            'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'sale_price' => 'nullable|numeric|min:0|lt:price',
-            'stock' => 'required|integer|min:0',
-            'min_order_quantity' => 'required|integer|min:1',
-            'max_order_quantity' => 'nullable|integer|min:1|gt:min_order_quantity',
-            'is_active' => 'boolean',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+	public function edit(Product $product)
+	{
+		return view('admin.products.edit', compact('product'));
+	}
 
-        // Handle image upload
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($product->image_url) {
-                $relativePath = str_replace(url('storage') . '/', '', $product->image_url);
-                Storage::disk('public')->delete($relativePath);
-            }
+	public function update(Request $request, Product $product)
+	{
+		$validated = $request->validate([
+			'name' => 'required|string|max:255',
+			'slug' => 'required|string|max:255|unique:products,slug,' . $product->id,
+			'description' => 'required|string',
+			'price' => 'required|numeric|min:0',
+			'sale_price' => 'nullable|numeric|min:0|lt:price',
+			'stock' => 'required|integer|min:0',
+			'min_order_quantity' => 'required|integer|min:1',
+			'max_order_quantity' => 'nullable|integer|min:1|gt:min_order_quantity',
+			'is_active' => 'boolean',
+			'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+		]);
 
-            // Upload new image
-            $image = $request->file('image');
-            $filename = Str::slug($request->name) . '-' . time() . '.' . $image->getClientOriginalExtension();
-            $path = $image->storeAs('products', $filename, 'public');
-            $validated['image_url'] = $path;
-        }
+		// Handle image upload
+		if ($request->hasFile('image')) {
+			// Delete old image if exists
+			if ($product->image_url) {
+				$relativePath = str_replace(url('storage') . '/', '', $product->image_url);
+				Storage::disk('public')->delete($relativePath);
+			}
 
-        // Update the product
-        $product->update($validated);
+			// Upload new image
+			$image = $request->file('image');
+			$filename = Str::slug($request->name) . '-' . time() . '.' . $image->getClientOriginalExtension();
+			$path = $image->storeAs('products', $filename, 'public');
+			$validated['image_url'] = $path;
+		}
 
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Product updated successfully.');
-    }
+		// Update the product
+		$product->update($validated);
 
-    public function destroy(Product $product)
-    {
-        $relativePath = str_replace(url('storage') . '/', '', $product->image_url);
-        // dd($relativePath);
-        if ($product->image_url) {
-            Storage::disk('public')->delete($relativePath);
-        }
+		return redirect()->route('admin.products.index')
+			->with('success', 'Product updated successfully.');
+	}
 
-        $product->delete();
+	public function destroy(Product $product)
+	{
+		$relativePath = str_replace(url('storage') . '/', '', $product->image_url);
+		// dd($relativePath);
+		if ($product->image_url) {
+			Storage::disk('public')->delete($relativePath);
+		}
 
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Product deleted successfully.');
-    }
+		$product->delete();
 
-    public function bulkAction(Request $request)
-    {
-        $request->validate([
-            'action' => 'required|in:delete,update-stock',
-            'product_ids' => 'required|array',
-            'product_ids.*' => 'exists:products,id',
-            'stock' => 'required_if:action,update-stock|integer|min:0',
-        ]);
+		return redirect()->route('admin.products.index')
+			->with('success', 'Product deleted successfully.');
+	}
 
-        $productIds = $request->product_ids;
+	public function bulkAction(Request $request)
+	{
+		$request->validate([
+			'action' => 'required|in:delete,update-stock',
+			'product_ids' => 'required|array',
+			'product_ids.*' => 'exists:products,id',
+			'stock' => 'required_if:action,update-stock|integer|min:0',
+		]);
 
-        switch ($request->action) {
-            case 'delete':
-                $products = Product::whereIn('id', $productIds)->get();
-                foreach ($products as $product) {
-                    if ($product->image) {
-                        Storage::disk('public')->delete($product->image);
-                    }
-                }
-                Product::whereIn('id', $productIds)->delete();
-                $message = 'Selected products have been deleted.';
-                break;
+		$productIds = $request->product_ids;
 
-            case 'update-stock':
-                Product::whereIn('id', $productIds)->update(['stock' => $request->stock]);
-                $message = 'Stock has been updated for selected products.';
-                break;
-        }
+		switch ($request->action) {
+			case 'delete':
+				$products = Product::whereIn('id', $productIds)->get();
+				foreach ($products as $product) {
+					if ($product->image) {
+						Storage::disk('public')->delete($product->image);
+					}
+				}
+				Product::whereIn('id', $productIds)->delete();
+				$message = 'Selected products have been deleted.';
+				break;
 
-        return redirect()->route('admin.products.index')
-            ->with('success', $message);
-    }
+			case 'update-stock':
+				Product::whereIn('id', $productIds)->update(['stock' => $request->stock]);
+				$message = 'Stock has been updated for selected products.';
+				break;
+		}
+
+		return redirect()->route('admin.products.index')
+			->with('success', $message);
+	}
 }

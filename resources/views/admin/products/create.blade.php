@@ -100,14 +100,6 @@
         </div>
 
         <div>
-          <label for="sku" class="block text-sm font-light text-gray-700">SKU</label>
-          <input type="text" name="sku" id="sku" value="{{ old('sku') }}"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-[#E67E22] transition duration-200 font-light">
-        </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-6">
-        <div>
           <label for="min_order_quantity" class="block text-sm font-light text-gray-700">Min Order Quantity</label>
           <input type="number" name="min_order_quantity" id="min_order_quantity"
           value="{{ old('min_order_quantity', 1) }}"
@@ -125,77 +117,53 @@
 
       <!-- Product Details -->
       <div class="px-6 py-5 space-y-6">
-        <h3 class="text-lg font-light text-[#2C3E50]">Product Details</h3>
-
-        <div class="grid grid-cols-2 gap-6">
-        <div>
-          <label for="weight" class="block text-sm font-light text-gray-700">Weight (kg)</label>
-          <input type="number" name="weight" id="weight" value="{{ old('weight') }}" step="0.01"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-[#E67E22] transition duration-200 font-light">
-        </div>
-
-        <div>
-          <label for="dimensions" class="block text-sm font-light text-gray-700">Dimensions (LxWxH)</label>
-          <input type="text" name="dimensions" id="dimensions" value="{{ old('dimensions') }}"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-[#E67E22] transition duration-200 font-light">
-        </div>
-        </div>
-
-        <div>
-        <label for="material" class="block text-sm font-light text-gray-700">Material</label>
-        <input type="text" name="material" id="material" value="{{ old('material') }}"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-[#E67E22] transition duration-200 font-light">
-        </div>
-
-        <div>
-        <label for="features" class="block text-sm font-light text-gray-700">Features (JSON)</label>
-        <textarea name="features" id="features" rows="3"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-[#E67E22] transition duration-200 font-light">{{ old('features') }}</textarea>
-        <p class="mt-1 text-sm text-gray-500 font-light">Enter features as a JSON object, e.g., {"color": "natural",
-          "style": "modern"}</p>
-        </div>
+        <h3 class="text-lg font-medium text-[#2C3E50]">Product Details</h3>
       </div>
 
       <!-- Media -->
       <div class="px-6 py-5 space-y-6">
-        <h3 class="text-lg font-light text-[#2C3E50]">Media</h3>
-
+        <h3 class="text-lg font-medium text-[#2C3E50]">Media</h3>
         <div>
-        <label for="image" class="block text-sm font-light text-gray-700">Product Image</label>
+        <label for="image" class="block text-sm font-medium text-gray-700">Product Image</label>
         <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
           <div class="space-y-1 text-center">
-          <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+          <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48"
+            aria-hidden="true">
             <path
             d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
           <div class="flex text-sm text-gray-600">
             <label for="image"
-            class="relative cursor-pointer bg-white rounded-md font-light text-[#E67E22] hover:text-[#2C3E50] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#E67E22]">
+            class="relative cursor-pointer bg-white rounded-md font-medium text-[#E67E22] hover:text-[#d35400] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#E67E22]">
             <span>Upload a file</span>
             <input id="image" name="image" type="file" class="sr-only" accept="image/*">
             </label>
             <p class="pl-1">or drag and drop</p>
           </div>
-          <p class="text-xs text-gray-500 font-light">PNG, JPG, GIF up to 2MB</p>
+          <p class="text-xs text-gray-500">PNG, JPG, GIF up to 2MB</p>
           </div>
+        </div>
+        <div id="image-preview" class="mt-2 hidden">
+          <img src="" alt="Preview" class="max-w-xs rounded-lg shadow-sm">
         </div>
         </div>
       </div>
 
       <!-- Status -->
-      <div class="px-6 py-5 bg-gray-50">
+      <div class="px-6 py-5 space-y-6">
+        <h3 class="text-lg font-medium text-[#2C3E50]">Status</h3>
         <div class="flex items-center">
-        <input type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active', 1) ? 'checked' : '' }}
-          class="h-4 w-4 rounded border-gray-300 text-[#E67E22] focus:ring-[#E67E22]">
-        <label for="is_active" class="ml-2 block text-sm font-light text-gray-700">Active</label>
+        <input type="checkbox" name="is_active" id="is_active" value="1" checked
+          class="h-4 w-4 text-[#E67E22] focus:ring-[#E67E22] border-gray-300 rounded">
+        <label for="is_active" class="ml-2 block text-sm text-gray-700">Active</label>
         </div>
       </div>
 
       <!-- Form Actions -->
       <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
         <button type="submit"
-        class="w-full bg-[#2C3E50] hover:bg-[#1a252f] text-white font-light py-3 rounded-md transition duration-200 uppercase tracking-wider">
+        class="w-full inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-[#2C3E50] hover:bg-[#1a252f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2C3E50] transition duration-200">
         Create Product
         </button>
       </div>
@@ -215,22 +183,15 @@
     document.getElementById('slug').value = slug;
     });
 
-    // Preview image before upload
+    // Image preview
     document.getElementById('image').addEventListener('change', function (e) {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = function (e) {
-      const preview = document.createElement('img');
-      preview.src = e.target.result;
-      preview.className = 'mt-2 mx-auto h-32 w-32 object-cover rounded-md';
-
-      const container = document.querySelector('.border-dashed');
-      const existingPreview = container.querySelector('img');
-      if (existingPreview) {
-      container.removeChild(existingPreview);
-      }
-      container.insertBefore(preview, container.firstChild);
+      const preview = document.getElementById('image-preview');
+      preview.querySelector('img').src = e.target.result;
+      preview.classList.remove('hidden');
       }
       reader.readAsDataURL(file);
     }
