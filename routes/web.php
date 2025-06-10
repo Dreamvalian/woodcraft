@@ -40,6 +40,7 @@ Route::get('/', function () {
 
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
+Route::view('/artisan', 'artisan')->name('artisan');
 
 // Legal and Information Pages
 Route::view('/faq', 'faq')->name('faq');
