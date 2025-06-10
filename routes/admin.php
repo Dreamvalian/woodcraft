@@ -11,16 +11,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/export', [DashboardController::class, 'export'])->name('dashboard.export');
-    
+
     // Shop Management
-    Route::resource('shops', ShopController::class);
-    Route::post('/shops/bulk-action', [ShopController::class, 'bulkAction'])->name('shops.bulk-action');
-    
+    // Route::resource('shops', ShopController::class);
+    // Route::post('/shops/bulk-action', [ShopController::class, 'bulkAction'])->name('shops.bulk-action');
+
     // Order Management
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
-    
+
     // User Management
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
@@ -28,4 +28,4 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Admin Notification Routes
     Route::post('/orders/{order}/notify', [NotificationController::class, 'notifyOrderStatus'])->name('notifications.order-status');
-}); 
+});

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Shop;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -14,15 +14,15 @@ class CartController extends Controller
         $items = [];
         $total = 0;
 
-        foreach ($cart as $shopId => $quantity) {
-            $shop = Shop::find($shopId);
-            if ($shop) {
+        foreach ($cart as $productId => $quantity) {
+            $product = Product::find($productId);
+            if ($product) {
                 $items[] = [
-                    'shop' => $shop,
+                    'product' => $product,
                     'quantity' => $quantity,
-                    'subtotal' => $shop->price * $quantity
+                    'subtotal' => $product->price * $quantity
                 ];
-                $total += $shop->price * $quantity;
+                $total += $product->price * $quantity;
             }
         }
 
@@ -32,22 +32,22 @@ class CartController extends Controller
     public function add(Request $request)
     {
         $request->validate([
-            'shop_id' => 'required|exists:shops,id',
+            'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1'
         ]);
 
-        $shop = Shop::findOrFail($request->shop_id);
-        
-        if ($shop->stock < $request->quantity) {
+        $product = Product::findOrFail($request->product_id);
+
+        if ($product->stock < $request->quantity) {
             return back()->with('error', 'Not enough stock available.');
         }
 
         $cart = Session::get('cart', []);
-        
-        if (isset($cart[$shop->id])) {
-            $cart[$shop->id] += $request->quantity;
+
+        if (isset($cart[$product->id])) {
+            $cart[$product->id] += $request->quantity;
         } else {
-            $cart[$shop->id] = $request->quantity;
+            $cart[$product->id] = $request->quantity;
         }
 
         Session::put('cart', $cart);
@@ -58,21 +58,21 @@ class CartController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'shop_id' => 'required|exists:shops,id',
+            'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:0'
         ]);
 
-        $shop = Shop::findOrFail($request->shop_id);
+        $product = Product::findOrFail($request->product_id);
         $cart = Session::get('cart', []);
 
-        if ($request->quantity > $shop->stock) {
+        if ($request->quantity > $product->stock) {
             return back()->with('error', 'Not enough stock available.');
         }
 
         if ($request->quantity > 0) {
-            $cart[$shop->id] = $request->quantity;
+            $cart[$product->id] = $request->quantity;
         } else {
-            unset($cart[$shop->id]);
+            unset($cart[$product->id]);
         }
 
         Session::put('cart', $cart);
@@ -80,12 +80,12 @@ class CartController extends Controller
         return back()->with('success', 'Cart updated successfully.');
     }
 
-    public function remove($shopId)
+    public function remove($productId)
     {
         $cart = Session::get('cart', []);
-        
-        if (isset($cart[$shopId])) {
-            unset($cart[$shopId]);
+
+        if (isset($cart[$productId])) {
+            unset($cart[$productId]);
             Session::put('cart', $cart);
         }
 
@@ -97,4 +97,4 @@ class CartController extends Controller
         Session::forget('cart');
         return back()->with('success', 'Cart cleared successfully.');
     }
-} 
+}

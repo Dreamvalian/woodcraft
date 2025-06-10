@@ -104,7 +104,7 @@
             </div>
 
             <!-- Total Categories -->
-            <div class="bg-white rounded-lg shadow-sm p-6">
+            {{-- <div class="bg-white rounded-lg shadow-sm p-6">
                 <div class="flex items-center">
                     <div class="p-3 rounded-full bg-blue-100">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -116,7 +116,7 @@
                         <p class="text-2xl font-semibold text-[#2C3E50]">{{ $totalCategories }}</p>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Total Value -->
             <div class="bg-white rounded-lg shadow-sm p-6">
@@ -192,7 +192,7 @@
         </div>
 
         <!-- Stock Value by Category -->
-        <div class="bg-white rounded-lg shadow-sm p-6">
+        {{-- <div class="bg-white rounded-lg shadow-sm p-6">
             <h3 class="text-lg font-semibold text-[#2C3E50] mb-6">Stock Value by Category</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 @foreach($stockValueByCategory as $category)
@@ -207,7 +207,7 @@
                 </div>
                 @endforeach
             </div>
-        </div>
+        </div> --}}
     </div>
 </div>
 
