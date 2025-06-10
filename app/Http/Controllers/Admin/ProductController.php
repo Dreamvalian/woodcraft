@@ -103,8 +103,10 @@ class ProductController extends Controller
         // dd($validated, $product->image);
         if ($request->hasFile('image')) {
             // Delete old image
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
+            $relativePath = str_replace(url('storage') . '/', '', $product->image_url);
+            // dd($relativePath);
+            if ($product->image_url) {
+                Storage::disk('public')->delete($relativePath);
             }
 
             $image = $request->file('image');
