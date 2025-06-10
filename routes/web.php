@@ -12,6 +12,10 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\UnsubscribeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\SplashController;
+
+// ========== Splash Screen ==========
+Route::get('/', [SplashController::class, 'show'])->name('splash');
 
 // ========== Auth Routes ==========
 Route::middleware('guest')->group(function () {
