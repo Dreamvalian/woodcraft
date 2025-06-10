@@ -25,7 +25,7 @@
           placeholder="Search by name or description"
           class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#E67E22] focus:border-transparent">
         </div>
-        <div>
+        {{-- <div>
         <label for="category" class="block text-sm font-medium text-[#2C3E50] mb-1">Category</label>
         <select name="category" id="category"
           class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#E67E22] focus:border-transparent">
@@ -36,7 +36,7 @@
         </option>
       @endforeach
         </select>
-        </div>
+        </div> --}}
         <div>
         <label for="sort" class="block text-sm font-medium text-[#2C3E50] mb-1">Sort By</label>
         <select name="sort" id="sort"
@@ -108,6 +108,7 @@
         class="product-checkbox rounded border-gray-300 text-[#E67E22] focus:ring-[#E67E22]">
         </td>
         <td class="py-4">
+        {{-- {{ dd($product->image_url) }} --}}
         <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
         class="w-16 h-16 object-cover rounded cursor-pointer" onclick="showImagePreview(this.src)">
         </td>

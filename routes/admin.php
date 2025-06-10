@@ -15,7 +15,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Product Management
     Route::resource('products', ProductController::class);
-
+    Route::post('/products/bulk-action', [ProductController::class, 'bulkAction'])->name('products.bulk-action');
+    Route::delete('products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
     // Shop Management
     // Route::resource('shops', ShopController::class);
     // Route::post('/shops/bulk-action', [ShopController::class, 'bulkAction'])->name('shops.bulk-action');
