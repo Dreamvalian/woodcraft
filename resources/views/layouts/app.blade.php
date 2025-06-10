@@ -128,7 +128,7 @@
         </template>
     </div>
 
-    @include('layouts.header')
+    @include('layouts.navigation')
     
     {{-- Main content --}}
     <main class="flex-grow">
