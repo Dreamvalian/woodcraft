@@ -17,9 +17,9 @@ class ProductController extends Controller
         // Search
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -36,6 +36,7 @@ class ProductController extends Controller
             $query->latest();
         }
 
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $query */
         $products = $query->paginate(10)->withQueryString();
         $categories = Product::distinct()->pluck('category');
 
@@ -114,7 +115,7 @@ class ProductController extends Controller
         if ($product->image) {
             Storage::disk('public')->delete($product->image);
         }
-        
+
         $product->delete();
 
         return redirect()->route('admin.products.index')
@@ -153,4 +154,4 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')
             ->with('success', $message);
     }
-} 
+}
