@@ -41,10 +41,17 @@
                         <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus
                             class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white/50 backdrop-blur-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-transparent transition duration-200">
                     </div>
-                    <div>
+                    <div x-data="{ show: false }" class="relative">
                         <label for="password" class="block text-sm font-light text-[#2C3E50] mb-2">Password</label>
-                        <input type="password" id="password" name="password" required
-                            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white/50 backdrop-blur-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-transparent transition duration-200">
+                        <div class="flex items-center relative">
+                            <input :type="show ? 'text' : 'password'" id="password" name="password" required
+                                class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white/50 backdrop-blur-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-transparent transition duration-200 pr-12">
+                            <button type="button" @click="show = !show"
+                                class="ml-[-2.5rem] z-10 flex items-center h-full text-gray-500 focus:outline-none"
+                                tabindex="-1">
+                                <i :class="show ? 'fa fa-eye-slash' : 'fa fa-eye'" class="text-xl"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
