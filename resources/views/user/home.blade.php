@@ -2,8 +2,38 @@
 @section('content')
   <div class="bg-white font-sans">
     <!-- Hero Section -->
-    <div class="flex flex-col md:flex-row justify-between items-center px-6 md:px-24 py-16 gap-12 bg-white">
-    <div class="md:w-1/2">
+    <div class="relative flex flex-col md:flex-row justify-between items-center px-6 md:px-24 py-16 gap-12 bg-white">
+    {{-- Background Wood Grain Pattern --}}
+    <div class="absolute inset-0 opacity-[0.02] pointer-events-none">
+      <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <pattern id="wood-grain" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+        <path d="M0,0 L100,0 L100,100 L0,100 Z" fill="none" stroke="currentColor" stroke-width="0.5" />
+        <path d="M0,20 Q25,15 50,20 T100,20" stroke="currentColor" fill="none" stroke-width="0.3" />
+        <path d="M0,40 Q25,35 50,40 T100,40" stroke="currentColor" fill="none" stroke-width="0.3" />
+        <path d="M0,60 Q25,55 50,60 T100,60" stroke="currentColor" fill="none" stroke-width="0.3" />
+        <path d="M0,80 Q25,75 50,80 T100,80" stroke="currentColor" fill="none" stroke-width="0.3" />
+      </pattern>
+      <rect x="0" y="0" width="100" height="100" fill="url(#wood-grain)" />
+      </svg>
+    </div>
+
+    <div class="md:w-1/2 relative">
+      {{-- Decorative corner elements --}}
+      <div class="absolute -top-4 -left-4 w-8 h-8 opacity-10">
+      <svg viewBox="0 0 100 100" class="w-full h-full">
+        <path d="M0,0 L100,0 L0,100" stroke="currentColor" fill="none" stroke-width="2" />
+        <path d="M20,0 L100,0" stroke="currentColor" fill="none" stroke-width="1" />
+        <path d="M40,0 L100,0" stroke="currentColor" fill="none" stroke-width="1" />
+      </svg>
+      </div>
+      <div class="absolute -bottom-4 -right-4 w-8 h-8 opacity-10">
+      <svg viewBox="0 0 100 100" class="w-full h-full">
+        <path d="M0,0 L100,0 L0,100" stroke="currentColor" fill="none" stroke-width="2" />
+        <path d="M20,0 L100,0" stroke="currentColor" fill="none" stroke-width="1" />
+        <path d="M40,0 L100,0" stroke="currentColor" fill="none" stroke-width="1" />
+      </svg>
+      </div>
+
       <h4 class="text-sm text-[#E67E22] uppercase mb-3 tracking-widest font-light">Crafting Excellence</h4>
       <h1 class="text-6xl font-light mb-6 leading-tight text-[#2C3E50]">Timeless Wood <br>Artistry</h1>
       <p class="text-gray-600 mb-8 text-lg max-w-md leading-relaxed font-light">
@@ -11,17 +41,55 @@
       unik, serta menjadi solusi eksklusif dari berbagai kebutuhan interior kayu berkualitas.
       </p>
       <a href="{{ route('shops.index') }}"
-      class="bg-transparent border-2 border-[#2C3E50] text-[#2C3E50] uppercase tracking-wider px-12 py-4 hover:bg-[#2C3E50] hover:text-white transition-all duration-300 font-light focus:outline-none focus:ring-2 focus:ring-[#2C3E50] focus:ring-offset-2 inline-block">
+      class="relative bg-transparent border-2 border-[#2C3E50] text-[#2C3E50] uppercase tracking-wider px-12 py-4 hover:bg-[#2C3E50] hover:text-white transition-all duration-300 font-light focus:outline-none focus:ring-2 focus:ring-[#2C3E50] focus:ring-offset-2 inline-block">
+      {{-- Hand-drawn underline --}}
+      <div class="absolute -bottom-2 left-0 w-full h-1">
+        <svg viewBox="0 0 100 10" class="w-full h-full">
+        <path d="M0,5 Q25,0 50,5 T100,5" stroke="currentColor" fill="none" stroke-width="2" />
+        </svg>
+      </div>
       Explore Collection
       </a>
     </div>
-    <div class="md:w-1/2">
+    <div class="md:w-1/2 relative">
+      <div class="relative">
       <img src="{{ asset('image/wood-1.png') }}" alt="Wood Table" class="w-full h-[500px] object-cover">
+      {{-- Hand-drawn frame decoration --}}
+      <div class="absolute inset-0 border-2 border-[#E67E22]/30 rounded-lg transform rotate-1"></div>
+      <div class="absolute inset-0 border-2 border-[#E67E22]/20 rounded-lg transform -rotate-1"></div>
+      {{-- Decorative corner elements --}}
+      <div class="absolute -top-2 -left-2 w-4 h-4 border-t-2 border-l-2 border-[#E67E22]/30"></div>
+      <div class="absolute -top-2 -right-2 w-4 h-4 border-t-2 border-r-2 border-[#E67E22]/30"></div>
+      <div class="absolute -bottom-2 -left-2 w-4 h-4 border-b-2 border-l-2 border-[#E67E22]/30"></div>
+      <div class="absolute -bottom-2 -right-2 w-4 h-4 border-b-2 border-r-2 border-[#E67E22]/30"></div>
+      {{-- Hand-drawn pin --}}
+      <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 w-8 h-8">
+        <svg viewBox="0 0 100 100" class="w-full h-full">
+        <circle cx="50" cy="50" r="40" stroke="#E67E22" fill="none" stroke-width="2" />
+        <path d="M50,10 L50,90" stroke="#E67E22" fill="none" stroke-width="2" />
+        <path d="M10,50 L90,50" stroke="#E67E22" fill="none" stroke-width="2" />
+        </svg>
+      </div>
+      </div>
     </div>
     </div>
 
     <!-- Carousel Section -->
     <div class="relative bg-white" id="carousel">
+    {{-- Background Wood Grain Pattern --}}
+    <div class="absolute inset-0 opacity-[0.02] pointer-events-none">
+      <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <pattern id="wood-grain-carousel" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+        <path d="M0,0 L100,0 L100,100 L0,100 Z" fill="none" stroke="currentColor" stroke-width="0.5" />
+        <path d="M0,20 Q25,15 50,20 T100,20" stroke="currentColor" fill="none" stroke-width="0.3" />
+        <path d="M0,40 Q25,35 50,40 T100,40" stroke="currentColor" fill="none" stroke-width="0.3" />
+        <path d="M0,60 Q25,55 50,60 T100,60" stroke="currentColor" fill="none" stroke-width="0.3" />
+        <path d="M0,80 Q25,75 50,80 T100,80" stroke="currentColor" fill="none" stroke-width="0.3" />
+      </pattern>
+      <rect x="0" y="0" width="100" height="100" fill="url(#wood-grain-carousel)" />
+      </svg>
+    </div>
+
     <!-- Loading Indicator -->
     <div class="absolute inset-0 bg-white/80 flex items-center justify-center z-50" id="carouselLoading">
       <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#E67E22]"></div>
@@ -35,8 +103,18 @@
     <!-- Slides -->
     <div class="relative">
       <div class="slide active">
-      <img src="{{ asset('image/forest-wood-craft.jpg') }}" alt="Forest"
+      <div class="relative">
+        <img src="{{ asset('image/forest-wood-craft.jpg') }}" alt="Forest"
         class="w-full h-[500px] object-cover transition-transform duration-700" loading="lazy">
+        {{-- Hand-drawn frame decoration --}}
+        <div class="absolute inset-0 border-2 border-[#E67E22]/30 rounded-lg transform rotate-1"></div>
+        <div class="absolute inset-0 border-2 border-[#E67E22]/20 rounded-lg transform -rotate-1"></div>
+        {{-- Decorative corner elements --}}
+        <div class="absolute -top-2 -left-2 w-4 h-4 border-t-2 border-l-2 border-[#E67E22]/30"></div>
+        <div class="absolute -top-2 -right-2 w-4 h-4 border-t-2 border-r-2 border-[#E67E22]/30"></div>
+        <div class="absolute -bottom-2 -left-2 w-4 h-4 border-b-2 border-l-2 border-[#E67E22]/30"></div>
+        <div class="absolute -bottom-2 -right-2 w-4 h-4 border-b-2 border-r-2 border-[#E67E22]/30"></div>
+      </div>
       <div class="absolute inset-0 bg-black/30 flex flex-col justify-center items-start">
         <div class="px-24 transform translate-y-4 opacity-0 transition-all duration-700 slide-content">
         <h2 class="text-white text-5xl font-light mb-4">Natural <br>Excellence</h2>
@@ -49,8 +127,18 @@
       </div>
 
       <div class="slide hidden">
-      <img src="{{ asset('image/about-1.jpg') }}" alt="Workshop"
+      <div class="relative">
+        <img src="{{ asset('image/about-1.jpg') }}" alt="Workshop"
         class="w-full h-[500px] object-cover transition-transform duration-700" loading="lazy">
+        {{-- Hand-drawn frame decoration --}}
+        <div class="absolute inset-0 border-2 border-[#E67E22]/30 rounded-lg transform rotate-1"></div>
+        <div class="absolute inset-0 border-2 border-[#E67E22]/20 rounded-lg transform -rotate-1"></div>
+        {{-- Decorative corner elements --}}
+        <div class="absolute -top-2 -left-2 w-4 h-4 border-t-2 border-l-2 border-[#E67E22]/30"></div>
+        <div class="absolute -top-2 -right-2 w-4 h-4 border-t-2 border-r-2 border-[#E67E22]/30"></div>
+        <div class="absolute -bottom-2 -left-2 w-4 h-4 border-b-2 border-l-2 border-[#E67E22]/30"></div>
+        <div class="absolute -bottom-2 -right-2 w-4 h-4 border-b-2 border-r-2 border-[#E67E22]/30"></div>
+      </div>
       <div class="absolute inset-0 bg-black/30 flex flex-col justify-center items-start">
         <div class="px-24 transform translate-y-4 opacity-0 transition-all duration-700 slide-content">
         <h2 class="text-white text-5xl font-light mb-4">Crafting <br>Perfection</h2>
@@ -63,8 +151,18 @@
       </div>
 
       <div class="slide hidden">
-      <img src="{{ asset('image/wood-1.png') }}" alt="Testimonials"
+      <div class="relative">
+        <img src="{{ asset('image/wood-1.png') }}" alt="Testimonials"
         class="w-full h-[500px] object-cover transition-transform duration-700" loading="lazy">
+        {{-- Hand-drawn frame decoration --}}
+        <div class="absolute inset-0 border-2 border-[#E67E22]/30 rounded-lg transform rotate-1"></div>
+        <div class="absolute inset-0 border-2 border-[#E67E22]/20 rounded-lg transform -rotate-1"></div>
+        {{-- Decorative corner elements --}}
+        <div class="absolute -top-2 -left-2 w-4 h-4 border-t-2 border-l-2 border-[#E67E22]/30"></div>
+        <div class="absolute -top-2 -right-2 w-4 h-4 border-t-2 border-r-2 border-[#E67E22]/30"></div>
+        <div class="absolute -bottom-2 -left-2 w-4 h-4 border-b-2 border-l-2 border-[#E67E22]/30"></div>
+        <div class="absolute -bottom-2 -right-2 w-4 h-4 border-b-2 border-r-2 border-[#E67E22]/30"></div>
+      </div>
       <div class="absolute inset-0 bg-black/30 flex flex-col justify-center items-center">
         <div class="px-24 text-center transform translate-y-4 opacity-0 transition-all duration-700 slide-content">
         <h2 class="text-white text-5xl font-light mb-4">Client <br>Stories</h2>

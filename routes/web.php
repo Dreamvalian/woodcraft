@@ -12,6 +12,10 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\UnsubscribeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\SplashController;
+
+// ========== Splash Screen ==========
+Route::get('/', [SplashController::class, 'show'])->name('splash');
 
 // ========== Auth Routes ==========
 Route::middleware('guest')->group(function () {
@@ -40,6 +44,7 @@ Route::get('/', function () {
 
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
+Route::view('/artisan', 'artisan')->name('artisan');
 
 // Legal and Information Pages
 Route::view('/faq', 'faq')->name('faq');
@@ -104,9 +109,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 // Order Routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::get('/orders', [App\Http\Controllers\User\OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [App\Http\Controllers\User\OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/cancel', [App\Http\Controllers\User\OrderController::class, 'cancel'])->name('orders.cancel');
 });
 
 // Notification Routes
