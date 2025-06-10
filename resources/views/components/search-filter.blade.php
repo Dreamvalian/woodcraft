@@ -102,7 +102,7 @@
                     <div class="h-2 bg-gray-200 rounded-full">
                         <div 
                             class="absolute h-2 bg-wood rounded-full"
-                            :style="`left: ${(priceRange.min / {{ $priceRange['max'] }}) * 100}%; right: ${100 - (priceRange.max / {{ $priceRange['max'] }}) * 100}%`"
+                            style="`left: ${(priceRange.min / {{ $priceRange['max'] }}) * 100}%; right: ${100 - (priceRange.max / {{ $priceRange['max'] }}) * 100}%`"
                         ></div>
                     </div>
                 </div>
