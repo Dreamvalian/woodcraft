@@ -1,51 +1,51 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <!-- Breadcrumb -->
-    <nav class="flex mb-8" aria-label="Breadcrumb">
-        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+    <nav class="flex mb-12" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-2">
             <li class="inline-flex items-center">
-                <a href="{{ route('home') }}" class="text-wood-600 hover:text-wood-900">
+                <a href="{{ route('home') }}" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">
                     <i class="fas fa-home mr-2"></i>
                     Home
                 </a>
             </li>
             <li>
                 <div class="flex items-center">
-                    <i class="fas fa-chevron-right text-wood-400 mx-2"></i>
-                    <span class="text-wood-900">Products</span>
+                    <i class="fas fa-chevron-right text-gray-400 mx-2 text-sm"></i>
+                    <span class="text-gray-900">Products</span>
                 </div>
             </li>
         </ol>
     </nav>
 
-    <div class="lg:grid lg:grid-cols-12 lg:gap-x-8">
+    <div class="lg:grid lg:grid-cols-12 lg:gap-x-12">
         <!-- Filters -->
         <aside class="hidden lg:block lg:col-span-3">
             <div x-data="{
                 priceRange: [{{ request('min_price', 0) }}, {{ request('max_price', 1000) }}]
-            }" class="space-y-6">
+            }" class="space-y-8">
                 <!-- Search -->
                 <div class="relative">
                     <input
                         type="text"
                         placeholder="Search products..."
-                        class="w-full rounded-lg border-wood-300 shadow-sm focus:border-wood-500 focus:ring-wood-500"
+                        class="w-full rounded-lg border-gray-200 shadow-sm focus:border-gray-300 focus:ring-0 text-sm"
                         value="{{ request('search') }}"
                         name="search"
                     >
-                    <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-wood-600">
+                    <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
                 <!-- Price Range -->
                 <div>
-                    <h3 class="text-lg font-medium text-wood-900">Price Range</h3>
-                    <div class="mt-2">
-                        <input type="range" x-model="priceRange[0]" min="0" max="1000" class="w-full" name="min_price">
-                        <input type="range" x-model="priceRange[1]" min="0" max="1000" class="w-full" name="max_price">
-                        <div class="flex justify-between mt-2">
+                    <h3 class="text-sm font-medium text-gray-900 mb-4">Price Range</h3>
+                    <div class="space-y-4">
+                        <input type="range" x-model="priceRange[0]" min="0" max="1000" class="w-full accent-gray-900" name="min_price">
+                        <input type="range" x-model="priceRange[1]" min="0" max="1000" class="w-full accent-gray-900" name="max_price">
+                        <div class="flex justify-between text-sm text-gray-600">
                             <span x-text="'$' + priceRange[0]"></span>
                             <span x-text="'$' + priceRange[1]"></span>
                         </div>
@@ -53,23 +53,23 @@
                 </div>
                 <!-- Material Filter -->
                 <div>
-                    <h3 class="text-lg font-medium text-wood-900">Material</h3>
-                    <div class="mt-2 space-y-2">
+                    <h3 class="text-sm font-medium text-gray-900 mb-4">Material</h3>
+                    <div class="space-y-3">
                         @foreach($materials as $material)
                             <label class="flex items-center">
-                                <input type="radio" name="material" value="{{ $material }}" class="form-radio text-wood-600" {{ request('material') == $material ? 'checked' : '' }}>
-                                <span class="ml-2 text-wood-700">{{ $material }}</span>
+                                <input type="radio" name="material" value="{{ $material }}" class="form-radio text-gray-900" {{ request('material') == $material ? 'checked' : '' }}>
+                                <span class="ml-2 text-sm text-gray-600">{{ $material }}</span>
                             </label>
                         @endforeach
                     </div>
                 </div>
                 <!-- Availability Filter -->
                 <div>
-                    <h3 class="text-lg font-medium text-wood-900">Availability</h3>
-                    <div class="mt-2">
+                    <h3 class="text-sm font-medium text-gray-900 mb-4">Availability</h3>
+                    <div>
                         <label class="flex items-center">
-                            <input type="checkbox" name="in_stock" value="1" class="form-checkbox text-wood-600" {{ request('in_stock') ? 'checked' : '' }}>
-                            <span class="ml-2 text-wood-700">In Stock</span>
+                            <input type="checkbox" name="in_stock" value="1" class="form-checkbox text-gray-900" {{ request('in_stock') ? 'checked' : '' }}>
+                            <span class="ml-2 text-sm text-gray-600">In Stock</span>
                         </label>
                     </div>
                 </div>
@@ -77,31 +77,31 @@
         </aside>
 
         <!-- Product Grid -->
-        <div class="mt-6 lg:mt-0 lg:col-span-9">
-            <div class="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
+        <div class="mt-8 lg:mt-0 lg:col-span-9">
+            <div class="grid grid-cols-1 gap-y-12 gap-x-6 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach($shops as $shop)
-                    <div class="group relative">
-                        <a href="{{ route('shops.show', $shop) }}" class="block relative overflow-hidden">
+                    <div class="group">
+                        <a href="{{ route('shops.show', $shop) }}" class="block relative overflow-hidden rounded-lg bg-gray-50">
                             <img src="{{ $shop->image_url }}" alt="{{ $shop->name }}" 
-                                 class="w-full h-48 object-cover transform transition-transform duration-500 group-hover:scale-110">
+                                 class="w-full aspect-square object-cover transform transition-transform duration-500 group-hover:scale-105">
                         </a>
-                        <div class="p-4">
+                        <div class="mt-4 space-y-2">
                             <a href="{{ route('shops.show', $shop) }}" 
-                               class="text-lg font-light text-[#2C3E50] hover:text-[#E67E22] transition">
+                               class="text-base font-medium text-gray-900 hover:text-gray-600 transition-colors duration-200">
                                 {{ $shop->name }}
                             </a>
-                            <p class="text-[#E67E22] font-light mt-1">{{ $shop->formatted_price }}</p>
+                            <p class="text-gray-600">{{ $shop->formatted_price }}</p>
                         </div>
                         <div class="mt-4">
                             <button 
                                 @click="addToCart({{ $shop->id }})"
-                                class="w-full bg-wood-600 text-white px-4 py-2 rounded-lg hover:bg-wood-700 transition-colors duration-200"
+                                class="w-full bg-gray-900 text-white px-4 py-2.5 rounded-lg hover:bg-gray-800 transition-colors duration-200 text-sm font-medium"
                                 :class="{ 'opacity-50 cursor-not-allowed': loading }"
                                 :disabled="loading"
                             >
                                 <span x-show="!loading">Add to Cart</span>
                                 <span x-show="loading" class="flex items-center justify-center">
-                                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
@@ -114,7 +114,7 @@
             </div>
 
             <!-- Pagination -->
-            <div class="mt-8">
+            <div class="mt-12">
                 {{ $shops->links() }}
             </div>
         </div>
@@ -145,7 +145,7 @@
             class="fixed inset-0 transition-opacity"
             aria-hidden="true"
         >
-            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            <div class="absolute inset-0 bg-gray-900 opacity-75"></div>
         </div>
 
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
@@ -163,7 +163,7 @@
             <div class="absolute top-0 right-0 pt-4 pr-4">
                 <button 
                     @click="quickView = null"
-                    class="bg-white rounded-md text-wood-400 hover:text-wood-500 focus:outline-none"
+                    class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none"
                 >
                     <span class="sr-only">Close</span>
                     <i class="fas fa-times"></i>
@@ -176,21 +176,21 @@
                             <img 
                                 :src="shops.find(s => s.id === quickView).image_url"
                                 :alt="shops.find(s => s.id === quickView).name"
-                                class="w-full h-64 object-cover rounded-lg"
+                                class="w-full aspect-square object-cover rounded-lg"
                             >
-                            <h3 class="mt-4 text-lg font-medium text-wood-900" x-text="shops.find(s => s.id === quickView).name"></h3>
-                            <p class="mt-2 text-lg font-medium text-wood-900">$<span x-text="shops.find(s => s.id === quickView).price"></span></p>
-                            <p class="mt-2 text-sm text-wood-600" x-text="shops.find(s => s.id === quickView).description"></p>
+                            <h3 class="mt-4 text-lg font-medium text-gray-900" x-text="shops.find(s => s.id === quickView).name"></h3>
+                            <p class="mt-2 text-lg font-medium text-gray-900">$<span x-text="shops.find(s => s.id === quickView).price"></span></p>
+                            <p class="mt-2 text-sm text-gray-600" x-text="shops.find(s => s.id === quickView).description"></p>
                             <div class="mt-4">
                                 <button 
                                     @click="addToCart(quickView)"
-                                    class="w-full bg-wood-600 text-white px-4 py-2 rounded-lg hover:bg-wood-700 transition-colors duration-200"
+                                    class="w-full bg-gray-900 text-white px-4 py-2.5 rounded-lg hover:bg-gray-800 transition-colors duration-200 text-sm font-medium"
                                     :class="{ 'opacity-50 cursor-not-allowed': loading }"
                                     :disabled="loading"
                                 >
                                     <span x-show="!loading">Add to Cart</span>
                                     <span x-show="loading" class="flex items-center justify-center">
-                                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
