@@ -60,7 +60,8 @@ class Product extends Model
     // Get the image URL
     public function getImageUrlAttribute()
     {
-        return $this->image ? asset('storage/' . $this->image) : asset('images/default-shop.jpg');
+        // dd($this->attributes['image_url']);
+        return $this->attributes['image_url'] ? asset('storage/' . $this->attributes['image_url']) : asset('images/default-shop.jpg');
     }
 
     // Get formatted price
@@ -71,7 +72,7 @@ class Product extends Model
 
     public function images()
     {
-        return $this->hasMany(ShopImage::class);
+        return $this->hasMany(ProductImage::class);
     }
 
     public function cartItems()

@@ -70,7 +70,7 @@
         </div>
       </div>
 
-      <div>
+      {{-- <div>
         <label for="category_id" class="block text-sm font-medium text-[#2C3E50] mb-1">Category</label>
         <select name="category_id" id="category_id" required
         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#E67E22] focus:border-transparent">
@@ -81,7 +81,7 @@
       </option>
       @endforeach
         </select>
-      </div>
+      </div> --}}
 
       <div class="grid grid-cols-2 gap-6">
         <div>

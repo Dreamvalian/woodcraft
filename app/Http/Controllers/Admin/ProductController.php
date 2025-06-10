@@ -24,9 +24,9 @@ class ProductController extends Controller
         }
 
         // Category filter
-        if ($request->has('category') && $request->category !== '') {
-            $query->where('category', $request->category);
-        }
+        // if ($request->has('category') && $request->category !== '') {
+        //     $query->where('category', $request->category);
+        // }
 
         // Sorting
         if ($request->has('sort')) {
@@ -38,9 +38,10 @@ class ProductController extends Controller
 
         /** @var \Illuminate\Pagination\LengthAwarePaginator $query */
         $products = $query->paginate(10)->withQueryString();
-        $categories = Product::distinct()->pluck('category');
+        // $categories = Product::distinct()->pluck('category');
 
-        return view('admin.products.index', compact('products', 'categories'));
+        // return view('admin.products.index', compact('products', 'categories'));
+        return view('admin.products.index', compact('products'));
     }
 
     public function create()
@@ -55,17 +56,19 @@ class ProductController extends Controller
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'category' => 'required|string|max:255',
+            'image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            // 'category' => 'required|string|max:255',
             'model' => 'nullable|string|max:255',
-            'features' => 'nullable|json',
+            // 'features' => 'nullable|json',
         ]);
 
+        // dd($request->hasFile('image'));
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $filename = Str::slug($request->name) . '-' . time() . '.' . $image->getClientOriginalExtension();
             $path = $image->storeAs('products', $filename, 'public');
-            $validated['image'] = $path;
+            $validated['image_url'] = $path;
+            // dd([$image, $filename, $path, $validated['image_url']]);
         }
 
         Product::create($validated);
@@ -86,12 +89,12 @@ class ProductController extends Controller
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'category' => 'required|string|max:255',
+            'image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            // 'category' => 'required|string|max:255',
             'model' => 'nullable|string|max:255',
-            'features' => 'nullable|json',
+            // 'features' => 'nullable|json',
         ]);
-
+        dd($validated, $product->image);
         if ($request->hasFile('image')) {
             // Delete old image
             if ($product->image) {
@@ -101,7 +104,7 @@ class ProductController extends Controller
             $image = $request->file('image');
             $filename = Str::slug($request->name) . '-' . time() . '.' . $image->getClientOriginalExtension();
             $path = $image->storeAs('products', $filename, 'public');
-            $validated['image'] = $path;
+            $validated['image_url'] = $path;
         }
 
         $product->update($validated);
@@ -112,8 +115,10 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+        $relativePath = str_replace(url('storage') . '/', '', $product->image_url);
+        // dd($relativePath);
+        if ($product->image_url) {
+            Storage::disk('public')->delete($relativePath);
         }
 
         $product->delete();

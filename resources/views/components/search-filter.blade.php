@@ -100,14 +100,12 @@
       </select>
     </div>
 
-<<<<<<< HEAD
     {{-- Reset Filters --}}
     <button @click="resetFilters()"
       class="w-full px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-wood focus:ring-offset-2">
       Reset Filters
     </button>
   </div>
-=======
     {{-- Filters --}}
     <div 
         x-show="isFilterOpen || window.innerWidth >= 768"
@@ -178,7 +176,6 @@
             Reset Filters
         </button>
     </div>
->>>>>>> ad484e0144e9c8627f52bb0e0aba79edc31ac7bb
 </div>
 
 @push('scripts')
