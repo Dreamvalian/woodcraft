@@ -140,6 +140,12 @@
                                class="block px-4 py-2 text-sm text-[#2C3E50] hover:bg-gray-50 transition-colors duration-300 font-light">
                                 <i class="fas fa-user-circle mr-2"></i> Profile
                             </a>
+                            @if (Auth::user()->role === 'admin')
+                                <a href="{{ route('admin.dashboard') }}" 
+                               class="block px-4 py-2 text-sm text-[#2C3E50] hover:bg-gray-50 transition-colors duration-300 font-light">
+                                <i class="fas fa-user-circle mr-2"></i> Dashboard
+                                </a>
+                            @endif
                             <a href="{{ route('orders.index') }}" 
                                class="block px-4 py-2 text-sm text-[#2C3E50] hover:bg-gray-50 transition-colors duration-300 font-light">
                                 <i class="fas fa-shopping-bag mr-2"></i> Orders
