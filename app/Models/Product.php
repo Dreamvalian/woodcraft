@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class Shop extends Model
+class Product extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -49,7 +49,7 @@ class Shop extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($shop) {
             if (empty($shop->slug)) {
                 $shop->slug = Str::slug($shop->name);
