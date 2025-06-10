@@ -54,42 +54,26 @@
       {{-- Utility Icons Section --}}
       <div class="flex items-center space-x-8">
         {{-- Search --}}
-        <div class="relative">
-          <button @click="searchOpen = !searchOpen"
-            class="text-[#2C3E50] hover:text-[#E67E22] transition-colors duration-300" title="Search">
-            <i class="fas fa-search text-lg"></i>
+        <div class="relative" x-data="{ open: false }">
+          <button @click="open = !open" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+            <i class="fas fa-search"></i>
           </button>
 
-          {{-- Search Dropdown --}}
-          <div x-show="searchOpen" @click.away="searchOpen = false"
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 transform scale-95"
-            x-transition:enter-end="opacity-100 transform scale-100"
-            x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-start="opacity-100 transform scale-100"
-            x-transition:leave-end="opacity-0 transform scale-95"
-            class="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100">
-            <div class="p-4">
-              <div class="relative">
-                <input type="text" x-model="searchQuery" @input.debounce.300ms="search" placeholder="Search shops..."
-                  class="w-full rounded-lg border-gray-200 text-[#2C3E50] placeholder-gray-400 focus:ring-[#E67E22] focus:border-[#E67E22]">
-                <div x-show="loading" class="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <div class="animate-spin rounded-full h-5 w-5 border-2 border-[#E67E22] border-t-transparent"></div>
-                </div>
+          <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95"
+            class="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg p-4 z-50">
+            <form action="{{ route('search') }}" method="GET" class="space-y-4">
+              <div class="flex">
+                <input type="text" name="q" placeholder="Search our shops..."
+                  class="flex-1 min-w-0 block w-full px-4 py-1 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-wood focus:border-transparent"
+                  value="{{ request('q') }}">
+                <x-button type="submit" class="rounded-l-none">
+                  <i class="fas fa-search"></i>
+                </x-button>
               </div>
-              <div x-show="searchResults.length > 0" class="mt-2 max-h-96 overflow-y-auto">
-                <template x-for="result in searchResults" :key="result . id">
-                  <a :href="'/shops/' + result . id"
-                    class="flex items-center space-x-4 p-2 hover:bg-gray-50 rounded-lg transition-colors duration-300">
-                    <img :src="result . image_url" :alt="result . name" class="w-12 h-12 object-cover rounded">
-                    <div>
-                      <h4 class="text-sm font-light text-[#2C3E50]" x-text="result.name"></h4>
-                      <p class="text-sm text-gray-500" x-text="result.formatted_price"></p>
-                    </div>
-                  </a>
-                </template>
-              </div>
-            </div>
+            </form>
           </div>
         </div>
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,8 @@
     <title>@yield('title', 'Woodcraft')</title>
     <style>
         /* Reset styles */
-        body, html {
+        body,
+        html {
             margin: 0;
             padding: 0;
             width: 100%;
@@ -45,15 +47,19 @@
         .button {
             display: inline-block;
             padding: 12px 24px;
-            background-color: #4B2E1F;
-            color: #ffffff;
+            background-color: transparent;
+            color: #2C3E50;
             text-decoration: none;
-            border-radius: 4px;
-            font-weight: 500;
+            border: 2px solid #2C3E50;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 300;
+            transition: all 0.3s ease;
         }
 
         .button:hover {
-            background-color: #3b2417;
+            background-color: #2C3E50;
+            color: #ffffff;
         }
 
         /* Footer styles */
@@ -107,6 +113,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         {{-- Header --}}
@@ -156,4 +163,5 @@
         </div>
     </div>
 </body>
-</html> 
+
+</html>

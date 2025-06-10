@@ -23,63 +23,103 @@
     <div class="lg:grid lg:grid-cols-12 lg:gap-x-12">
         <!-- Filters -->
         <aside class="hidden lg:block lg:col-span-3">
-            <div x-data="{
-                priceRange: [{{ request('min_price', 0) }}, {{ request('max_price', 1000) }}]
+            <form action="{{ route('shops.index') }}" method="GET" x-data="{
+                priceRange: [{{ request('min_price', 0) }}, {{ request('max_price', 1000) }}],
+                submitForm() {
+                    this.$el.submit();
+                }
             }" class="space-y-8">
                 <!-- Search -->
                 <div class="relative">
                     <input
                         type="text"
                         placeholder="Search products..."
-                        class="w-full rounded-lg border-gray-200 shadow-sm focus:border-gray-300 focus:ring-0 text-sm"
+                        class="w-full rounded-lg border-gray-200 shadow-sm focus:border-gray-300 focus:ring-0 text-sm pl-10"
                         value="{{ request('search') }}"
                         name="search"
                     >
-                    <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200">
-                        <i class="fas fa-search"></i>
-                    </button>
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                 </div>
+
+                <!-- Sort Dropdown -->
+                <div class="relative">
+                    <select 
+                        name="sort" 
+                        class="w-full rounded-lg border-gray-200 text-sm focus:border-gray-300 focus:ring-0 appearance-none pl-10"
+                    >
+                        <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Newest</option>
+                        <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
+                        <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+                        <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>Name: A to Z</option>
+                        <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>Name: Z to A</option>
+                    </select>
+                    <i class="fas fa-sort absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>
+                </div>
+
                 <!-- Price Range -->
-                <div>
+                <div class="bg-gray-50 rounded-lg p-4">
                     <h3 class="text-sm font-medium text-gray-900 mb-4">Price Range</h3>
                     <div class="space-y-4">
-                        <input type="range" x-model="priceRange[0]" min="0" max="1000" class="w-full accent-gray-900" name="min_price">
-                        <input type="range" x-model="priceRange[1]" min="0" max="1000" class="w-full accent-gray-900" name="max_price">
+                        <div class="relative">
+                            <input type="range" x-model="priceRange[0]" min="0" max="1000" class="w-full accent-gray-900" name="min_price">
+                            <input type="range" x-model="priceRange[1]" min="0" max="1000" class="w-full accent-gray-900" name="max_price">
+                        </div>
                         <div class="flex justify-between text-sm text-gray-600">
                             <span x-text="'$' + priceRange[0]"></span>
                             <span x-text="'$' + priceRange[1]"></span>
                         </div>
                     </div>
                 </div>
+
                 <!-- Material Filter -->
-                <div>
+                <div class="bg-gray-50 rounded-lg p-4">
                     <h3 class="text-sm font-medium text-gray-900 mb-4">Material</h3>
                     <div class="space-y-3">
                         @foreach($materials as $material)
-                            <label class="flex items-center">
+                            <label class="flex items-center group cursor-pointer">
                                 <input type="radio" name="material" value="{{ $material }}" class="form-radio text-gray-900" {{ request('material') == $material ? 'checked' : '' }}>
-                                <span class="ml-2 text-sm text-gray-600">{{ $material }}</span>
+                                <span class="ml-2 text-sm text-gray-600 group-hover:text-gray-900 transition-colors duration-200">{{ $material }}</span>
                             </label>
                         @endforeach
                     </div>
                 </div>
+
                 <!-- Availability Filter -->
-                <div>
+                <div class="bg-gray-50 rounded-lg p-4">
                     <h3 class="text-sm font-medium text-gray-900 mb-4">Availability</h3>
-                    <div>
-                        <label class="flex items-center">
-                            <input type="checkbox" name="in_stock" value="1" class="form-checkbox text-gray-900" {{ request('in_stock') ? 'checked' : '' }}>
-                            <span class="ml-2 text-sm text-gray-600">In Stock</span>
-                        </label>
-                    </div>
+                    <label class="flex items-center group cursor-pointer">
+                        <input type="checkbox" name="in_stock" value="1" class="form-checkbox text-gray-900" {{ request('in_stock') ? 'checked' : '' }}>
+                        <span class="ml-2 text-sm text-gray-600 group-hover:text-gray-900 transition-colors duration-200">In Stock</span>
+                    </label>
                 </div>
-            </div>
+
+                <!-- Apply Filters Button -->
+                <button type="submit" class="w-full bg-transparent border-2 border-[#2C3E50] text-[#2C3E50] uppercase tracking-wider px-6 py-3 hover:bg-[#2C3E50] hover:text-white transition-all duration-300 font-light focus:outline-none focus:ring-2 focus:ring-[#2C3E50] focus:ring-offset-2">
+                    Apply Filters
+                </button>
+
+                <!-- Clear Filters -->
+                @if(request()->hasAny(['search', 'min_price', 'max_price', 'material', 'in_stock', 'sort']))
+                    <a href="{{ route('shops.index') }}" class="block text-center text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200">
+                        Clear all filters
+                    </a>
+                @endif
+            </form>
         </aside>
 
         <!-- Product Grid -->
         <div class="mt-8 lg:mt-0 lg:col-span-9">
+            <!-- Results Count -->
+            <div class="mb-8">
+                <p class="text-sm text-gray-600">
+                    Showing {{ $shops->firstItem() ?? 0 }} - {{ $shops->lastItem() ?? 0 }} of {{ $shops->total() }} results
+                </p>
+            </div>
+
+            <!-- Products Grid -->
             <div class="grid grid-cols-1 gap-y-12 gap-x-6 sm:grid-cols-2 lg:grid-cols-3">
-                @foreach($shops as $shop)
+                @forelse($shops as $shop)
                     <div class="group">
                         <a href="{{ route('shops.show', $shop) }}" class="block relative overflow-hidden rounded-lg bg-gray-50">
                             <img src="{{ $shop->image_url }}" alt="{{ $shop->name }}" 
@@ -110,7 +150,13 @@
                             </button>
                         </div>
                     </div>
-                @endforeach
+                @empty
+                    <div class="col-span-full text-center py-12">
+                        <i class="fas fa-search text-gray-400 text-4xl mb-4"></i>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">No products found</h3>
+                        <p class="text-gray-600">Try adjusting your search or filter criteria</p>
+                    </div>
+                @endforelse
             </div>
 
             <!-- Pagination -->
