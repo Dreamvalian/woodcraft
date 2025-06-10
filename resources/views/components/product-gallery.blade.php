@@ -39,7 +39,7 @@
             <button 
                 @click="activeImage = {{ $index }}"
                 class="aspect-square rounded-lg overflow-hidden border-2 transition"
-                :class="activeImage === {{ $index }} ? 'border-wood' : 'border-transparent hover:border-gray-300'"
+                class="activeImage === {{ $index }} ? 'border-wood' : 'border-transparent hover:border-gray-300'"
             >
                 <img 
                     src="{{ $image }}" 
@@ -98,7 +98,7 @@
                     <button 
                         @click="activeImage = {{ $index }}"
                         class="w-16 h-16 rounded-lg overflow-hidden border-2 transition"
-                        :class="activeImage === {{ $index }} ? 'border-wood' : 'border-transparent hover:border-gray-300'"
+                        class="activeImage === {{ $index }} ? 'border-wood' : 'border-transparent hover:border-gray-300'"
                     >
                         <img 
                             src="{{ $image }}" 

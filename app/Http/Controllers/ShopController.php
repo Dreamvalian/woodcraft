@@ -31,7 +31,7 @@ class ShopController extends Controller
     {
         $cacheKey = 'shops_' . md5($request->fullUrl());
 
-        $data = \Cache::remember($cacheKey, self::CACHE_TTL, function () use ($request) {
+        $data = Cache::remember($cacheKey, self::CACHE_TTL, function () use ($request) {
             $query = Shop::query();
 
             // Apply filters using scopes
@@ -40,6 +40,7 @@ class ShopController extends Controller
             // Apply sorting
             $this->applySorting($query, $request);
 
+            /** @var \Illuminate\Pagination\LengthAwarePaginator $query */
             $shops = $query->paginate(12)->withQueryString();
             $materials = Shop::distinct()->pluck('material')->filter();
 
@@ -57,10 +58,10 @@ class ShopController extends Controller
     public function show(Shop $shop)
     {
         $shop->load(['images']);
-        
+
         // Get related shops
         $relatedShops = $this->getRelatedShops($shop);
-        
+
         // Update recently viewed
         $this->updateRecentlyViewed($shop);
 
@@ -105,7 +106,7 @@ class ShopController extends Controller
     public function updateCartQuantity(UpdateCartQuantityRequest $request, $id)
     {
         try {
-            $result = $this->cartService->updateCartQuantity(
+            $result = $this->cartService->updateQuantity(
                 $id,
                 $request->quantity,
                 auth()->id()
@@ -138,9 +139,9 @@ class ShopController extends Controller
     {
         // Search
         if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
+            $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', "%{$request->search}%")
-                  ->orWhere('description', 'like', "%{$request->search}%");
+                    ->orWhere('description', 'like', "%{$request->search}%");
             });
         }
 
@@ -198,27 +199,27 @@ class ShopController extends Controller
     protected function updateRecentlyViewed(Shop $shop): void
     {
         $recentlyViewed = session()->get('recently_viewed', []);
-        
+
         // Remove the current shop if it exists
         $recentlyViewed = array_diff($recentlyViewed, [$shop->id]);
-        
+
         // Add the current shop to the beginning
         array_unshift($recentlyViewed, $shop->id);
-        
+
         // Keep only the last 4 shops
         $recentlyViewed = array_slice($recentlyViewed, 0, 4);
-        
+
         session()->put('recently_viewed', $recentlyViewed);
     }
 
     protected function checkRateLimit(): void
     {
         $key = 'add-to-cart:' . (auth()->id() ?? request()->ip());
-        
+
         if (RateLimiter::tooManyAttempts($key, self::RATE_LIMIT_ATTEMPTS)) {
             throw new \Exception('Too many attempts. Please try again later.');
         }
-        
+
         RateLimiter::hit($key, self::RATE_LIMIT_DECAY);
     }
 }

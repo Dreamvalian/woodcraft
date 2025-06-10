@@ -15,13 +15,13 @@ class CheckoutController extends Controller
     public function index()
     {
         $cart = Cart::where('user_id', auth()->id())->with('items.product')->first();
-        
+
         if (!$cart || $cart->items->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
         $addresses = Address::where('user_id', auth()->id())->get();
-        
+
         return view('checkout.index', compact('cart', 'addresses'));
     }
 
@@ -35,7 +35,7 @@ class CheckoutController extends Controller
         ]);
 
         $cart = Cart::where('user_id', auth()->id())->with('items.product')->first();
-        
+
         if (!$cart || $cart->items->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
@@ -79,7 +79,6 @@ class CheckoutController extends Controller
 
             return redirect()->route('checkout.success', $order)
                 ->with('success', 'Order placed successfully!');
-
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
@@ -98,11 +97,23 @@ class CheckoutController extends Controller
 
     private function calculateShippingCost($method)
     {
-        return match($method) {
-            'standard' => 5.00,
-            'express' => 10.00,
-            'overnight' => 20.00,
-            default => 5.00,
-        };
+        $cost = 0;
+
+        switch ($method) {
+            case 'standard':
+                $cost = 5.00;
+                break;
+            case 'express':
+                $cost = 10.00;
+                break;
+            case 'overnight':
+                $cost = 20.00;
+                break;
+            default:
+                $cost = 5.00;
+                break;
+        }
+
+        return $cost;
     }
-} 
+}
