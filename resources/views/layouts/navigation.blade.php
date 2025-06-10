@@ -109,19 +109,47 @@
         x-transition:leave-end="opacity-0 transform scale-95"
         class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100">
 
-        {{-- Profile Links --}}
-        <a href="{{ route('profile') }}"
-          class="block px-4 py-2 text-sm text-[#2C3E50] hover:bg-gray-50 transition-colors duration-300 font-light">
-          <i class="fas fa-user-circle mr-2"></i> Profile
-        </a>
-        <a href="{{ route('orders.index') }}"
-          class="block px-4 py-2 text-sm text-[#2C3E50] hover:bg-gray-50 transition-colors duration-300 font-light">
-          <i class="fas fa-shopping-bag mr-2"></i> Orders
-        </a>
-        <a href="{{ route('notifications.index') }}"
-          class="block px-4 py-2 text-sm text-[#2C3E50] hover:bg-gray-50 transition-colors duration-300 font-light">
-          <i class="fas fa-bell mr-2"></i> Notifications
-        </a>
+                {{-- User Profile Dropdown --}}
+                @auth
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open" 
+                                class="text-[#2C3E50] hover:text-[#E67E22] transition-colors duration-300 flex items-center space-x-2"
+                                title="Account">
+                            <i class="fas fa-user text-lg"></i>
+                            <span class="font-light">{{ Auth::user()->name }}</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        
+                        {{-- Dropdown Menu --}}
+                        <div x-show="open" 
+                             @click.away="open = false"
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 transform scale-95"
+                             x-transition:enter-end="opacity-100 transform scale-100"
+                             x-transition:leave="transition ease-in duration-150"
+                             x-transition:leave-start="opacity-100 transform scale-100"
+                             x-transition:leave-end="opacity-0 transform scale-95"
+                             class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100">
+                            
+                            {{-- Profile Links --}}
+                            <a href="{{ route('profile') }}" 
+                               class="block px-4 py-2 text-sm text-[#2C3E50] hover:bg-gray-50 transition-colors duration-300 font-light">
+                                <i class="fas fa-user-circle mr-2"></i> Profile
+                            </a>
+                            @if (Auth::user()->role === 'admin')
+                                <a href="{{ route('admin.dashboard') }}" 
+                               class="block px-4 py-2 text-sm text-[#2C3E50] hover:bg-gray-50 transition-colors duration-300 font-light">
+                                <i class="fas fa-user-circle mr-2"></i> Dashboard
+                                </a>
+                            @endif
+                            <a href="{{ route('orders.index') }}" 
+                               class="block px-4 py-2 text-sm text-[#2C3E50] hover:bg-gray-50 transition-colors duration-300 font-light">
+                                <i class="fas fa-shopping-bag mr-2"></i> Orders
+                            </a>
+                            <a href="{{ route('notifications.index') }}" 
+                               class="block px-4 py-2 text-sm text-[#2C3E50] hover:bg-gray-50 transition-colors duration-300 font-light">
+                                <i class="fas fa-bell mr-2"></i> Notifications
+                            </a>
 
         {{-- Divider --}}
         <div class="border-t border-gray-100 my-1"></div>

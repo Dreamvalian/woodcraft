@@ -33,7 +33,7 @@ class DashboardController extends Controller
         $lowStockProducts = Product::where('stock', '<', 10)->count();
 
         // Total Categories
-        $totalCategories = Product::distinct('category')->count();
+        // $totalCategories = Product::distinct('category')->count();
 
         // Total Inventory Value
         $totalValue = Product::sum(DB::raw('price * stock'));
@@ -42,17 +42,17 @@ class DashboardController extends Controller
         $recentProducts = Product::latest()->take(5)->get();
 
         // Category Distribution
-        $categoryDistribution = Product::select('category', DB::raw('count(*) as count'))
-            ->groupBy('category')
-            ->pluck('count', 'category')
-            ->toArray();
+        // $categoryDistribution = Product::select('category', DB::raw('count(*) as count'))
+        //     ->groupBy('category')
+        //     ->pluck('count', 'category')
+        //     ->toArray();
 
         // Sales Statistics with date filter
         $monthlySales = Order::whereBetween('created_at', [$startDate, $endDate])
             ->select(
                 DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'),
                 DB::raw('COUNT(*) as total_orders'),
-                DB::raw('SUM(total_amount) as total_sales')
+                // DB::raw('SUM(total_amount) as total_sales')
             )
             ->groupBy('month')
             ->orderBy('month')
@@ -63,16 +63,31 @@ class DashboardController extends Controller
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
             ->leftJoin('orders', 'order_items.order_id', '=', 'orders.id')
             ->whereBetween('orders.created_at', [$startDate, $endDate])
-            ->groupBy('products.id')
+            ->groupBy(
+                'products.id',
+                'products.name',
+                'products.slug',
+                'products.description',
+                'products.price',
+                'products.sale_price',
+                'products.stock',
+                'products.min_order_quantity',
+                'products.max_order_quantity',
+                'products.image_url',
+                'products.is_active',
+                'products.created_at',
+                'products.updated_at',
+                'products.deleted_at'
+            )
             ->orderBy('order_count', 'desc')
             ->take(5)
             ->get();
 
         // Stock Value by Category
-        $stockValueByCategory = Product::select('category', DB::raw('SUM(price * stock) as total_value'))
-            ->groupBy('category')
-            ->orderBy('total_value', 'desc')
-            ->get();
+        // $stockValueByCategory = Product::select('category', DB::raw('SUM(price * stock) as total_value'))
+        //     ->groupBy('category')
+        //     ->orderBy('total_value', 'desc')
+        //     ->get();
 
         // Recent Orders with date filter
         $recentOrders = Order::with(['items.product'])
@@ -83,21 +98,21 @@ class DashboardController extends Controller
 
         // Additional statistics for the date range
         $dateRangeStats = [
-            'total_sales' => Order::whereBetween('created_at', [$startDate, $endDate])->sum('total_amount'),
+            'total_sales' => Order::whereBetween('created_at', [$startDate, $endDate])->sum('total'),
             'total_orders' => Order::whereBetween('created_at', [$startDate, $endDate])->count(),
-            'average_order_value' => Order::whereBetween('created_at', [$startDate, $endDate])->avg('total_amount'),
+            'average_order_value' => Order::whereBetween('created_at', [$startDate, $endDate])->avg('total'),
         ];
 
         return view('admin.dashboard', compact(
             'totalProducts',
             'lowStockProducts',
-            'totalCategories',
+            // 'totalCategories',
             'totalValue',
             'recentProducts',
-            'categoryDistribution',
+            // 'categoryDistribution',
             'monthlySales',
             'popularProducts',
-            'stockValueByCategory',
+            // 'stockValueByCategory',
             'recentOrders',
             'dateRangeStats',
             'startDate',
@@ -123,7 +138,8 @@ class DashboardController extends Controller
             ->select(
                 DB::raw('DATE_FORMAT(created_at, "%Y-%m-%d") as date'),
                 DB::raw('COUNT(*) as total_orders'),
-                DB::raw('SUM(total_amount) as total_sales')
+                // DB::raw('SUM(total_amount) as total_sales')
+                DB::raw('SUM(total) as total_sales')
             )
             ->groupBy('date')
             ->orderBy('date')
@@ -131,16 +147,16 @@ class DashboardController extends Controller
 
         // Get product performance data
         $productPerformance = Product::select(
-                'products.name',
-                'products.category',
-                DB::raw('COUNT(order_items.id) as total_orders'),
-                DB::raw('SUM(order_items.quantity) as total_quantity'),
-                DB::raw('SUM(order_items.quantity * order_items.price) as total_revenue')
-            )
+            'products.name',
+            // 'products.category',
+            DB::raw('COUNT(order_items.id) as total_orders'),
+            DB::raw('SUM(order_items.quantity) as total_quantity'),
+            DB::raw('SUM(order_items.quantity * order_items.price) as total_revenue')
+        )
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
             ->leftJoin('orders', 'order_items.order_id', '=', 'orders.id')
             ->whereBetween('orders.created_at', [$startDate, $endDate])
-            ->groupBy('products.id', 'products.name', 'products.category')
+            // ->groupBy('products.id', 'products.name', 'products.category')
             ->orderBy('total_revenue', 'desc')
             ->get();
 
@@ -151,9 +167,10 @@ class DashboardController extends Controller
         }
 
         $csv .= "\nProduct Performance\n";
-        $csv .= "Product Name,Category,Total Orders,Total Quantity,Total Revenue\n";
+        $csv .= "Product Name,Total Orders,Total Quantity,Total Revenue\n";
         foreach ($productPerformance as $product) {
-            $csv .= "{$product->name},{$product->category},{$product->total_orders},{$product->total_quantity},{$product->total_revenue}\n";
+            // $csv .= "{$product->name},{$product->category},{$product->total_orders},{$product->total_quantity},{$product->total_revenue}\n";
+            $csv .= "{$product->name},{$product->total_orders},{$product->total_quantity},{$product->total_revenue}\n";
         }
 
         // Generate filename
@@ -165,4 +182,4 @@ class DashboardController extends Controller
             'Content-Disposition' => "attachment; filename=\"$filename\"",
         ]);
     }
-} 
+}
