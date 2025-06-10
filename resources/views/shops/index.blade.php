@@ -73,7 +73,7 @@
                 </div>
 
                 <!-- Material Filter -->
-                <div class="bg-gray-50 rounded-lg p-4">
+                {{-- <div class="bg-gray-50 rounded-lg p-4">
                     <h3 class="text-sm font-medium text-gray-900 mb-4">Material</h3>
                     <div class="space-y-3">
                         @foreach($materials as $material)
@@ -83,7 +83,7 @@
                             </label>
                         @endforeach
                     </div>
-                </div>
+                </div> --}}
 
                 <!-- Availability Filter -->
                 <div class="bg-gray-50 rounded-lg p-4">
@@ -113,28 +113,28 @@
             <!-- Results Count -->
             <div class="mb-8">
                 <p class="text-sm text-gray-600">
-                    Showing {{ $shops->firstItem() ?? 0 }} - {{ $shops->lastItem() ?? 0 }} of {{ $shops->total() }} results
+                    Showing {{ $products->firstItem() ?? 0 }} - {{ $products->lastItem() ?? 0 }} of {{ $products->total() }} results
                 </p>
             </div>
 
             <!-- Products Grid -->
             <div class="grid grid-cols-1 gap-y-12 gap-x-6 sm:grid-cols-2 lg:grid-cols-3">
-                @forelse($shops as $shop)
+                @forelse($products as $product)
                     <div class="group">
-                        <a href="{{ route('shops.show', $shop) }}" class="block relative overflow-hidden rounded-lg bg-gray-50">
-                            <img src="{{ $shop->image_url }}" alt="{{ $shop->name }}" 
+                        <a href="{{ route('shops.show', $product) }}" class="block relative overflow-hidden rounded-lg bg-gray-50">
+                            <img src="{{ $product->image_url }}" alt="{{ $product->name }}" 
                                  class="w-full aspect-square object-cover transform transition-transform duration-500 group-hover:scale-105">
                         </a>
                         <div class="mt-4 space-y-2">
-                            <a href="{{ route('shops.show', $shop) }}" 
+                            <a href="{{ route('shops.show', $product) }}" 
                                class="text-base font-medium text-gray-900 hover:text-gray-600 transition-colors duration-200">
-                                {{ $shop->name }}
+                                {{ $product->name }}
                             </a>
-                            <p class="text-gray-600">{{ $shop->formatted_price }}</p>
+                            <p class="text-gray-600">{{ $product->formatted_price }}</p>
                         </div>
                         <div class="mt-4">
                             <button 
-                                @click="addToCart({{ $shop->id }})"
+                                @click="addToCart({{ $product->id }})"
                                 class="w-full bg-gray-900 text-white px-4 py-2.5 rounded-lg hover:bg-gray-800 transition-colors duration-200 text-sm font-medium"
                                 :class="{ 'opacity-50 cursor-not-allowed': loading }"
                                 :disabled="loading"
@@ -161,7 +161,7 @@
 
             <!-- Pagination -->
             <div class="mt-12">
-                {{ $shops->links() }}
+                {{ $products->links() }}
             </div>
         </div>
     </div>
