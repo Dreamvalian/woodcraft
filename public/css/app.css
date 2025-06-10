@@ -1557,6 +1557,10 @@ select {
   margin-left: auto;
   margin-right: auto;
 }
+.my-1 {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
 .-ml-1 {
   margin-left: -0.25rem;
 }
@@ -1755,6 +1759,9 @@ select {
 .w-5 {
   width: 1.25rem;
 }
+.w-56 {
+  width: 14rem;
+}
 .w-6 {
   width: 1.5rem;
 }
@@ -1842,10 +1849,11 @@ select {
   --tw-translate-y: -0.5rem;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
+
 .-translate-y-4 {
   --tw-translate-y: -1rem;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-}
+
 .translate-x-0 {
   --tw-translate-x: 0px;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
@@ -2119,6 +2127,10 @@ select {
 .border-t-2 {
   border-top-width: 2px;
 }
+.border-\[\#1a1212\] {
+  --tw-border-opacity: 1;
+  border-color: rgb(26 18 18 / var(--tw-border-opacity, 1));
+}
 .border-\[\#2C3E50\] {
   --tw-border-opacity: 1;
   border-color: rgb(44 62 80 / var(--tw-border-opacity, 1));
@@ -2176,6 +2188,18 @@ select {
 }
 .border-white\/20 {
   border-color: rgb(255 255 255 / 0.2);
+}
+.border-yellow-100 {
+  --tw-border-opacity: 1;
+  border-color: rgb(254 249 195 / var(--tw-border-opacity, 1));
+}
+.border-t-transparent {
+  border-top-color: transparent;
+}
+.bg-\[\#1a1212\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(26 18 18 / var(--tw-bg-opacity, 1));
+
 }
 .border-yellow-100 {
   --tw-border-opacity: 1;
@@ -2586,6 +2610,11 @@ select {
   --tw-text-opacity: 1;
   color: rgb(44 62 80 / var(--tw-text-opacity, 1));
 }
+.text-\[\#2D1E1E\] {
+  --tw-text-opacity: 1;
+  color: rgb(45 30 30 / var(--tw-text-opacity, 1));
+}
+
 .text-\[\#3b5998\] {
   --tw-text-opacity: 1;
   color: rgb(59 89 152 / var(--tw-text-opacity, 1));
@@ -2907,6 +2936,10 @@ select {
 .hover\:border-gray-300:hover {
   --tw-border-opacity: 1;
   border-color: rgb(209 213 219 / var(--tw-border-opacity, 1));
+}
+.hover\:bg-\[\#1a1212\]:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(26 18 18 / var(--tw-bg-opacity, 1));
 }
 .hover\:bg-\[\#1a252f\]:hover {
   --tw-bg-opacity: 1;
@@ -3234,6 +3267,7 @@ select {
 
   .sm\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+
   }
 
   .sm\:grid-cols-3 {
@@ -3389,6 +3423,10 @@ select {
 
   .lg\:block {
     display: block;
+  }
+  
+  .lg\:inline {
+    display: inline;
   }
 
   .lg\:grid {
