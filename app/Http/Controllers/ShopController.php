@@ -222,4 +222,33 @@ class ShopController extends Controller
 
         RateLimiter::hit($key, self::RATE_LIMIT_DECAY);
     }
+
+    public function search(Request $request)
+    {
+        $query = $request->get('q', '');
+
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $shops = Shop::where(function ($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%")
+                ->orWhere('description', 'like', "%{$query}%");
+        })
+            ->active()
+            ->take(5)
+            ->get()
+            ->map(function ($shop) {
+                return [
+                    'id' => $shop->id,
+                    'name' => $shop->name,
+                    'description' => Str::limit($shop->description, 100),
+                    'price' => $shop->price,
+                    'formatted_price' => $shop->formatted_price,
+                    'image_url' => $shop->image_url,
+                ];
+            });
+
+        return response()->json($shops);
+    }
 }
