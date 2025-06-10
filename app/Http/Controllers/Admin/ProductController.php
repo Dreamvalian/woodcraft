@@ -86,27 +86,33 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:products,slug,' . $product->id,
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
+            'sale_price' => 'nullable|numeric|min:0|lt:price',
             'stock' => 'required|integer|min:0',
-            'image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            // 'category' => 'required|string|max:255',
-            'model' => 'nullable|string|max:255',
-            // 'features' => 'nullable|json',
+            'min_order_quantity' => 'required|integer|min:1',
+            'max_order_quantity' => 'nullable|integer|min:1|gt:min_order_quantity',
+            'is_active' => 'boolean',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-        dd($validated, $product->image);
+
+        // Handle image upload
         if ($request->hasFile('image')) {
-            // Delete old image
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
+            // Delete old image if exists
+            if ($product->image_url) {
+                $relativePath = str_replace(url('storage') . '/', '', $product->image_url);
+                Storage::disk('public')->delete($relativePath);
             }
 
+            // Upload new image
             $image = $request->file('image');
             $filename = Str::slug($request->name) . '-' . time() . '.' . $image->getClientOriginalExtension();
             $path = $image->storeAs('products', $filename, 'public');
             $validated['image_url'] = $path;
         }
 
+        // Update the product
         $product->update($validated);
 
         return redirect()->route('admin.products.index')

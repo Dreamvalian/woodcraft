@@ -1,158 +1,140 @@
 @extends('layouts.app')
 
 @section('content')
-  <div class="bg-[#f8f6f3] min-h-screen py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="bg-white rounded-lg shadow-sm p-6">
-      <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold text-[#2C3E50]">Manage Products</h2>
-      <a href="{{ route('admin.products.create') }}"
-        class="bg-[#E67E22] text-white px-4 py-2 rounded shadow hover:bg-[#2C3E50] transition">
-        Add New Product
-      </a>
+  <div class="min-h-screen bg-[#f9f9f9]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <!-- Header Section -->
+      <div class="px-6 py-5 border-b border-gray-100">
+      <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-light text-[#2C3E50]">Products</h2>
+        <a href="{{ route('admin.products.create') }}"
+        class="inline-flex items-center px-4 py-2 bg-[#2C3E50] text-white text-sm font-light rounded-md hover:bg-[#1a252f] transition duration-200 uppercase tracking-wider">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+        Add Product
+        </a>
+      </div>
       </div>
 
       @if(session('success'))
-      <div class="mb-4 p-3 bg-green-100 text-green-800 rounded">{{ session('success') }}</div>
+      <div class="px-6 py-4 bg-green-50 border-b border-green-100">
+      <div class="flex items-center text-green-700">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+      {{ session('success') }}
+      </div>
+      </div>
     @endif
 
-      <!-- Search and Filter Section -->
-      <div class="mb-6 bg-gray-50 p-4 rounded-lg">
-      <form action="{{ route('admin.products.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div>
-        <label for="search" class="block text-sm font-medium text-[#2C3E50] mb-1">Search</label>
-        <input type="text" name="search" id="search" value="{{ request('search') }}"
-          placeholder="Search by name or description"
-          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#E67E22] focus:border-transparent">
+      <!-- Filters Section -->
+      <div class="px-6 py-4 bg-gray-50 border-b border-gray-100">
+      <form action="{{ route('admin.products.index') }}" method="GET" class="flex flex-wrap gap-4">
+        <div class="flex-1 min-w-[200px]">
+        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search products..."
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-[#E67E22] transition duration-200 font-light">
         </div>
-        {{-- <div>
-        <label for="category" class="block text-sm font-medium text-[#2C3E50] mb-1">Category</label>
-        <select name="category" id="category"
-          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#E67E22] focus:border-transparent">
-          <option value="">All Categories</option>
-          @foreach($categories as $category)
-        <option value="{{ $category }}" {{ request('category') == $category ? 'selected' : '' }}>
-        {{ $category }}
-        </option>
-      @endforeach
-        </select>
-        </div> --}}
-        <div>
-        <label for="sort" class="block text-sm font-medium text-[#2C3E50] mb-1">Sort By</label>
-        <select name="sort" id="sort"
-          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#E67E22] focus:border-transparent">
+        <div class="flex gap-4">
+        <select name="sort" onchange="this.form.submit()"
+          class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-[#E67E22] transition duration-200 font-light">
           <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>Name (A-Z)</option>
           <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>Name (Z-A)</option>
-          <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Price (Low to High)
-          </option>
-          <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Price (High to Low)
-          </option>
-          <option value="stock_asc" {{ request('sort') == 'stock_asc' ? 'selected' : '' }}>Stock (Low to High)
-          </option>
-          <option value="stock_desc" {{ request('sort') == 'stock_desc' ? 'selected' : '' }}>Stock (High to Low)
-          </option>
+          <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Price (Low-High)</option>
+          <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Price (High-Low)</option>
+          <option value="created_desc" {{ request('sort') == 'created_desc' ? 'selected' : '' }}>Newest First</option>
+          <option value="created_asc" {{ request('sort') == 'created_asc' ? 'selected' : '' }}>Oldest First</option>
         </select>
-        </div>
-        <div class="flex items-end">
         <button type="submit"
-          class="bg-[#2C3E50] text-white px-4 py-2 rounded shadow hover:bg-[#E67E22] transition w-full">
-          Apply Filters
+          class="px-4 py-2 bg-[#2C3E50] text-white rounded-md hover:bg-[#1a252f] transition duration-200 font-light uppercase tracking-wider">
+          Filter
         </button>
         </div>
       </form>
       </div>
 
-      <!-- Bulk Actions -->
-      <form id="bulk-action-form" action="{{ route('admin.products.bulk-action') }}" method="POST" class="mb-6">
-      @csrf
-      <div class="flex items-center gap-4 bg-gray-50 p-4 rounded-lg">
-        <div class="flex-1">
-        <select name="action" id="bulk-action"
-          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#E67E22] focus:border-transparent">
-          <option value="">Bulk Actions</option>
-          <option value="delete">Delete Selected</option>
-          <option value="update-stock">Update Stock</option>
-        </select>
-        </div>
-        <div id="stock-input" class="hidden flex-1">
-        <input type="number" name="stock" placeholder="Enter stock quantity"
-          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#E67E22] focus:border-transparent">
-        </div>
-        <button type="submit" class="bg-[#2C3E50] text-white px-4 py-2 rounded shadow hover:bg-[#E67E22] transition">
-        Apply
-        </button>
-      </div>
-      </form>
-
+      <!-- Products Table -->
       <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead>
-        <tr class="text-left border-b">
-          <th class="pb-3 text-[#2C3E50]">
-          <input type="checkbox" id="select-all"
-            class="rounded border-gray-300 text-[#E67E22] focus:ring-[#E67E22]">
-          </th>
-          <th class="pb-3 text-[#2C3E50]">Image</th>
-          <th class="pb-3 text-[#2C3E50]">Name</th>
-          <th class="pb-3 text-[#2C3E50]">Category</th>
-          <th class="pb-3 text-[#2C3E50]">Price</th>
-          <th class="pb-3 text-[#2C3E50]">Stock</th>
-          <th class="pb-3 text-[#2C3E50]">Actions</th>
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+        <tr>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Product</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Price</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Stock</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Status</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Created</th>
+          <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Actions</th>
         </tr>
         </thead>
-        <tbody>
+        <tbody class="bg-white divide-y divide-gray-200">
         @forelse($products as $product)
-      <tr class="border-b hover:bg-[#f8f6f3] transition">
-        <td class="py-4">
-        <input type="checkbox" name="product_ids[]" value="{{ $product->id }}"
-        class="product-checkbox rounded border-gray-300 text-[#E67E22] focus:ring-[#E67E22]">
-        </td>
-        <td class="py-4">
-        {{-- {{ dd($product->image_url) }} --}}
-        <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
-        class="w-16 h-16 object-cover rounded cursor-pointer" onclick="showImagePreview(this.src)">
-        </td>
-        <td class="py-4">
-        <div class="font-semibold text-[#2C3E50]">{{ $product->name }}</div>
-        <div class="text-sm text-[#7f8c8d]">{{ Str::limit($product->description, 50) }}</div>
-        </td>
-        <td class="py-4 text-[#2C3E50]">{{ $product->category }}</td>
-        <td class="py-4 text-[#E67E22] font-semibold">{{ $product->formatted_price }}</td>
-        <td class="py-4">
-        <span
-        class="px-2 py-1 rounded-full text-sm {{ $product->stock > 10 ? 'bg-green-100 text-green-800' : ($product->stock > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-        {{ $product->stock }}
-        </span>
-        </td>
-        <td class="py-4">
-        <div class="flex items-center gap-2">
-        <a href="{{ route('admin.products.edit', $product->id) }}"
-        class="text-[#E67E22] hover:text-[#2C3E50] transition" title="Edit Product">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path
-          d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-        </svg>
-        </a>
-        <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="inline">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="text-red-500 hover:text-red-700 transition"
-          onclick="return confirm('Are you sure you want to delete this product?')" title="Delete Product">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd"
-          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-          clip-rule="evenodd" />
-          </svg>
-        </button>
-        </form>
+        <tr>
+        <td class="px-6 py-4 whitespace-nowrap">
+        <div class="flex items-center">
+          <div class="h-10 w-10 flex-shrink-0">
+          <img class="h-10 w-10 rounded-lg object-cover" src="{{ $product->image_url }}"
+          alt="{{ $product->name }}">
+          </div>
+          <div class="ml-4">
+          <div class="text-sm font-medium text-[#2C3E50]">{{ $product->name }}</div>
+          <div class="text-sm text-gray-500">{{ $product->sku }}</div>
+          </div>
         </div>
         </td>
-      </tr>
+        <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-[#2C3E50]">${{ number_format($product->price, 2) }}</div>
+        @if($product->sale_price)
+        <div class="text-sm text-[#E67E22]">${{ number_format($product->sale_price, 2) }}</div>
+      @endif
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-[#2C3E50]">{{ $product->stock }}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+        <span
+          class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $product->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+          {{ $product->is_active ? 'Active' : 'Inactive' }}
+        </span>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        {{ $product->created_at->format('M d, Y') }}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <div class="flex justify-end space-x-4">
+          <a href="{{ route('admin.products.edit', $product) }}"
+          class="inline-flex items-center justify-center w-8 h-8 text-[#2C3E50] hover:text-[#E67E22] transition duration-200 rounded-full hover:bg-gray-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          <span class="sr-only">Edit</span>
+          </a>
+          <form action="{{ route('admin.products.destroy', $product) }}" method="POST" class="inline">
+          @csrf
+          @method('DELETE')
+          <button type="submit" onclick="return confirm('Are you sure you want to delete this product?')"
+          class="inline-flex items-center justify-center w-8 h-8 text-[#2C3E50] hover:text-red-600 transition duration-200 rounded-full hover:bg-gray-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          <span class="sr-only">Delete</span>
+          </button>
+          </form>
+        </div>
+        </td>
+        </tr>
       @empty
       <tr>
-        <td colspan="7" class="py-8 text-center text-[#7f8c8d]">
-        No products found. <a href="{{ route('admin.products.create') }}"
-        class="text-[#E67E22] hover:underline">Add your first product</a>
+        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+        No products found.
         </td>
       </tr>
       @endforelse
@@ -160,25 +142,30 @@
       </table>
       </div>
 
-      <div class="mt-6">
+      <!-- Pagination -->
+      @if($products->hasPages())
+      <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
       {{ $products->links() }}
       </div>
+    @endif
     </div>
     </div>
   </div>
 
   <!-- Image Preview Modal -->
   <div id="image-preview-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white p-4 rounded-lg max-w-2xl max-h-[90vh] overflow-auto">
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-lg font-semibold text-[#2C3E50]">Image Preview</h3>
-      <button onclick="closeImagePreview()" class="text-gray-500 hover:text-gray-700">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div class="bg-white rounded-xl max-w-2xl max-h-[90vh] overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+      <h3 class="text-lg font-medium text-gray-900">Image Preview</h3>
+      <button onclick="closeImagePreview()" class="text-gray-400 hover:text-gray-500 transition-colors">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
       </button>
     </div>
-    <img id="preview-image" src="" alt="Preview" class="max-w-full h-auto">
+    <div class="p-6">
+      <img id="preview-image" src="" alt="Preview" class="max-w-full h-auto rounded-lg">
+    </div>
     </div>
   </div>
 
@@ -211,13 +198,6 @@
     modal.classList.add('hidden');
     modal.classList.remove('flex');
     }
-
-    // Close modal when clicking outside
-    document.getElementById('image-preview-modal').addEventListener('click', function (e) {
-    if (e.target === this) {
-      closeImagePreview();
-    }
-    });
     </script>
   @endpush
 @endsection

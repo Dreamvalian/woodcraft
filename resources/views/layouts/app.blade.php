@@ -92,15 +92,15 @@
         }
     }" 
     x-on:notify.window="addToast($event.detail.message, $event.detail.type)"
-    class="fixed top-4 right-4 z-50 space-y-4">
+    class="fixed bottom-4 right-4 z-50 space-y-4">
         <template x-for="toast in toasts" :key="toast.id">
             <div x-show="true"
                  x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 transform translate-x-2"
-                 x-transition:enter-end="opacity-100 transform translate-x-0"
+                 x-transition:enter-start="opacity-0 transform translate-y-2"
+                 x-transition:enter-end="opacity-100 transform translate-y-0"
                  x-transition:leave="transition ease-in duration-200"
-                 x-transition:leave-start="opacity-100 transform translate-x-0"
-                 x-transition:leave-end="opacity-0 transform translate-x-2"
+                 x-transition:leave-start="opacity-100 transform translate-y-0"
+                 x-transition:leave-end="opacity-0 transform translate-y-2"
                  :class="{
                     'bg-green-50 text-green-800 border-green-100': toast.type === 'success',
                     'bg-red-50 text-red-800 border-red-100': toast.type === 'error',
