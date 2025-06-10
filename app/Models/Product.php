@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class Shop extends Model
+class Product extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -17,7 +17,10 @@ class Shop extends Model
         'slug',
         'description',
         'price',
+        'sale_price',
         'stock',
+        'min_order_quantity',
+        'max_order_quantity',
         'sku',
         'image',
         'model',
@@ -49,7 +52,7 @@ class Shop extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($shop) {
             if (empty($shop->slug)) {
                 $shop->slug = Str::slug($shop->name);
@@ -60,7 +63,8 @@ class Shop extends Model
     // Get the image URL
     public function getImageUrlAttribute()
     {
-        return $this->image ? asset('storage/' . $this->image) : asset('images/default-shop.jpg');
+        // dd($this->attributes['image_url']);
+        return $this->attributes['image_url'] ? asset('storage/' . $this->attributes['image_url']) : asset('images/default-shop.jpg');
     }
 
     // Get formatted price
@@ -71,7 +75,7 @@ class Shop extends Model
 
     public function images()
     {
-        return $this->hasMany(ShopImage::class);
+        return $this->hasMany(ProductImage::class);
     }
 
     public function cartItems()

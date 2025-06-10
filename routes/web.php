@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Shop\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -12,6 +13,10 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\UnsubscribeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\SplashController;
+
+// ========== Splash Screen ==========
+Route::get('/', [SplashController::class, 'show'])->name('splash');
 
 // ========== Auth Routes ==========
 Route::middleware('guest')->group(function () {
@@ -24,7 +29,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-    
+
     // Admin Routes
     Route::middleware('admin')->prefix('admin')->group(function () {
         Route::get('/dashboard', function () {
@@ -34,12 +39,13 @@ Route::middleware('auth')->group(function () {
 });
 
 // ========== Public Routes ==========
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+// Route::get('/', function () {
+//     return view('welcome');
+// })->name('home');
 
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
+Route::view('/artisan', 'artisan')->name('artisan');
 
 // Legal and Information Pages
 Route::view('/faq', 'faq')->name('faq');
@@ -55,9 +61,9 @@ Route::post('/unsubscribe/all', [UnsubscribeController::class, 'unsubscribeAll']
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 
 // Shop Routes
-Route::get('/shops', [ShopController::class, 'index'])->name('shops.index');
-Route::get('/shops/{shop:slug}', [ShopController::class, 'show'])->name('shops.show');
-Route::get('/api/shops/{shop}/quick-view', [ShopController::class, 'quickView'])->name('shops.quick-view');
+Route::get('/shops', [ProductController::class, 'index'])->name('shops.index');
+Route::get('/shops/{product:slug}', [ProductController::class, 'show'])->name('shops.show');
+Route::get('/api/shops/{shop}/quick-view', [ProductController::class, 'quickView'])->name('shops.quick-view');
 
 // Cart Routes
 Route::middleware(['web'])->group(function () {
@@ -86,16 +92,16 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/export', [App\Http\Controllers\Admin\DashboardController::class, 'export'])->name('dashboard.export');
-    
+
     // Shop Management
-    Route::resource('shops', App\Http\Controllers\Admin\ShopController::class);
-    Route::post('/shops/bulk-action', [App\Http\Controllers\Admin\ShopController::class, 'bulkAction'])->name('shops.bulk-action');
-    
+    // Route::resource('shops', App\Http\Controllers\Admin\ShopController::class);
+    // Route::post('/shops/bulk-action', [App\Http\Controllers\Admin\ShopController::class, 'bulkAction'])->name('shops.bulk-action');
+
     // Order Management
     Route::get('/orders', [App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{order}/status', [App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('orders.update-status');
-    
+
     // User Management
     Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
     Route::get('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
@@ -104,9 +110,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 // Order Routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::get('/orders', [App\Http\Controllers\User\OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [App\Http\Controllers\User\OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/cancel', [App\Http\Controllers\User\OrderController::class, 'cancel'])->name('orders.cancel');
 });
 
 // Notification Routes
@@ -118,8 +124,8 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Include Modular Route Files
-require __DIR__.'/auth.php';
-require __DIR__.'/user.php';
-require __DIR__.'/admin.php';
-require __DIR__.'/legal.php';
-require __DIR__.'/cart.php';
+require __DIR__ . '/auth.php';
+require __DIR__ . '/user.php';
+require __DIR__ . '/admin.php';
+require __DIR__ . '/legal.php';
+require __DIR__ . '/cart.php';

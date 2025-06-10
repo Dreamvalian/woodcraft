@@ -15,22 +15,22 @@ return new class extends Migration
         Schema::dropIfExists('wishlists');
 
         // If shops table doesn't exist, rename products to shops
-        if (!Schema::hasTable('shops') && Schema::hasTable('products')) {
-            Schema::rename('products', 'shops');
-        }
+        // if (!Schema::hasTable('shops') && Schema::hasTable('products')) {
+        //     Schema::rename('products', 'shops');
+        // }
 
         // Update foreign key references
-        Schema::table('order_items', function (Blueprint $table) {
-            $table->dropForeign(['product_id']);
-            $table->renameColumn('product_id', 'shop_id');
-            $table->foreign('shop_id')->references('id')->on('shops')->onDelete('cascade');
-        });
+        // Schema::table('order_items', function (Blueprint $table) {
+        //     $table->dropForeign(['product_id']);
+        //     $table->renameColumn('product_id', 'shop_id');
+        //     $table->foreign('shop_id')->references('id')->on('shops')->onDelete('cascade');
+        // });
 
-        Schema::table('cart_items', function (Blueprint $table) {
-            $table->dropForeign(['product_id']);
-            $table->renameColumn('product_id', 'shop_id');
-            $table->foreign('shop_id')->references('id')->on('shops')->onDelete('cascade');
-        });
+        // Schema::table('cart_items', function (Blueprint $table) {
+        //     $table->dropForeign(['product_id']);
+        //     $table->renameColumn('product_id', 'shop_id');
+        //     $table->foreign('shop_id')->references('id')->on('shops')->onDelete('cascade');
+        // });
     }
 
     public function down(): void
@@ -71,21 +71,21 @@ return new class extends Migration
         });
 
         // Revert foreign key changes
-        Schema::table('order_items', function (Blueprint $table) {
-            $table->dropForeign(['shop_id']);
-            $table->renameColumn('shop_id', 'product_id');
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-        });
+        // Schema::table('order_items', function (Blueprint $table) {
+        //     $table->dropForeign(['shop_id']);
+        //     $table->renameColumn('shop_id', 'product_id');
+        //     $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+        // });
 
-        Schema::table('cart_items', function (Blueprint $table) {
-            $table->dropForeign(['shop_id']);
-            $table->renameColumn('shop_id', 'product_id');
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-        });
+        // Schema::table('cart_items', function (Blueprint $table) {
+        //     $table->dropForeign(['shop_id']);
+        //     $table->renameColumn('shop_id', 'product_id');
+        //     $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+        // });
 
-        // If products table doesn't exist, rename shops to products
-        if (!Schema::hasTable('products') && Schema::hasTable('shops')) {
-            Schema::rename('shops', 'products');
-        }
+        // // If products table doesn't exist, rename shops to products
+        // if (!Schema::hasTable('products') && Schema::hasTable('shops')) {
+        //     Schema::rename('shops', 'products');
+        // }
     }
-}; 
+};

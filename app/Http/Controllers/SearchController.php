@@ -32,19 +32,29 @@ class SearchController extends Controller
             })
             ->when($maxPrice, function ($q) use ($maxPrice) {
                 return $q->where('price', '<=', $maxPrice);
-            })
-            ->when($sortBy, function ($q) use ($sortBy) {
-                return match ($sortBy) {
-                    'price_asc' => $q->orderBy('price', 'asc'),
-                    'price_desc' => $q->orderBy('price', 'desc'),
-                    'name_asc' => $q->orderBy('name', 'asc'),
-                    'name_desc' => $q->orderBy('name', 'desc'),
-                    default => $q->latest(),
-                };
-            })
-            ->paginate(12)
-            ->withQueryString();
+            });
+
+        switch ($sortBy) {
+            case 'price_asc':
+                $products->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $products->orderBy('price', 'desc');
+                break;
+            case 'name_asc':
+                $products->orderBy('name', 'asc');
+                break;
+            case 'name_desc':
+                $products->orderBy('name', 'desc');
+                break;
+            default:
+                $products->orderBy('created_at', 'desc');
+                break;
+        }
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $products */
+        $products = $products->paginate(12)->withQueryString();
 
         return view('search.index', compact('products', 'query', 'category', 'minPrice', 'maxPrice', 'sortBy'));
     }
-} 
+}
