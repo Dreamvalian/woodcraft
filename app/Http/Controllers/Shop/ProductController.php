@@ -47,17 +47,18 @@ class ProductController extends Controller
 
         $products = $query->paginate(12);
 
-        return view('products.index', compact('products'));
+        return view('shops.index', compact('products'));
     }
 
     public function show(Product $product)
     {
+        // dd($product);
         $relatedProducts = Product::where('id', '!=', $product->id)
             ->inRandomOrder()
             ->take(4)
             ->get();
 
-        return view('products.show', compact('product', 'relatedProducts'));
+        return view('shops.show', compact('product', 'relatedProducts'));
     }
 
     public function quickView(Product $product)
@@ -70,4 +71,4 @@ class ProductController extends Controller
             'description' => $product->description,
         ]);
     }
-} 
+}

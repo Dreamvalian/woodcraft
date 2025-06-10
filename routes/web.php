@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Shop\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -38,9 +39,9 @@ Route::middleware('auth')->group(function () {
 });
 
 // ========== Public Routes ==========
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+// Route::get('/', function () {
+//     return view('welcome');
+// })->name('home');
 
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
@@ -60,9 +61,9 @@ Route::post('/unsubscribe/all', [UnsubscribeController::class, 'unsubscribeAll']
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 
 // Shop Routes
-Route::get('/shops', [ShopController::class, 'index'])->name('shops.index');
-Route::get('/shops/{shop:slug}', [ShopController::class, 'show'])->name('shops.show');
-Route::get('/api/shops/{shop}/quick-view', [ShopController::class, 'quickView'])->name('shops.quick-view');
+Route::get('/shops', [ProductController::class, 'index'])->name('shops.index');
+Route::get('/shops/{product:slug}', [ProductController::class, 'show'])->name('shops.show');
+Route::get('/api/shops/{shop}/quick-view', [ProductController::class, 'quickView'])->name('shops.quick-view');
 
 // Cart Routes
 Route::middleware(['web'])->group(function () {

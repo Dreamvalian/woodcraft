@@ -55,10 +55,13 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
+            'sale_price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'min_order_quantity' => 'required|numeric|min:0',
+            'max_order_quantity' => 'required|numeric|min:0',
             // 'category' => 'required|string|max:255',
-            'model' => 'nullable|string|max:255',
+            // 'model' => 'nullable|string|max:255',
             // 'features' => 'nullable|json',
         ]);
 
@@ -88,13 +91,16 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
+            'sale_price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'min_order_quantity' => 'required|numeric|min:0',
+            'max_order_quantity' => 'required|numeric|min:0',
             // 'category' => 'required|string|max:255',
-            'model' => 'nullable|string|max:255',
+            // 'model' => 'nullable|string|max:255',
             // 'features' => 'nullable|json',
         ]);
-        dd($validated, $product->image);
+        // dd($validated, $product->image);
         if ($request->hasFile('image')) {
             // Delete old image
             if ($product->image) {
