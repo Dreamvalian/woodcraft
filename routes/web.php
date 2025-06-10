@@ -24,7 +24,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-    
+
     // Admin Routes
     Route::middleware('admin')->prefix('admin')->group(function () {
         Route::get('/dashboard', function () {
@@ -86,16 +86,16 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/export', [App\Http\Controllers\Admin\DashboardController::class, 'export'])->name('dashboard.export');
-    
+
     // Shop Management
-    Route::resource('shops', App\Http\Controllers\Admin\ShopController::class);
-    Route::post('/shops/bulk-action', [App\Http\Controllers\Admin\ShopController::class, 'bulkAction'])->name('shops.bulk-action');
-    
+    // Route::resource('shops', App\Http\Controllers\Admin\ShopController::class);
+    // Route::post('/shops/bulk-action', [App\Http\Controllers\Admin\ShopController::class, 'bulkAction'])->name('shops.bulk-action');
+
     // Order Management
     Route::get('/orders', [App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{order}/status', [App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('orders.update-status');
-    
+
     // User Management
     Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
     Route::get('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
@@ -118,8 +118,8 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Include Modular Route Files
-require __DIR__.'/auth.php';
-require __DIR__.'/user.php';
-require __DIR__.'/admin.php';
-require __DIR__.'/legal.php';
-require __DIR__.'/cart.php';
+require __DIR__ . '/auth.php';
+require __DIR__ . '/user.php';
+require __DIR__ . '/admin.php';
+require __DIR__ . '/legal.php';
+require __DIR__ . '/cart.php';
