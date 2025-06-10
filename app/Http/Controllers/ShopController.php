@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
+use App\Models\Shop;
 use App\Models\Cart;
-use App\Models\Category;
 use App\Http\Requests\AddToCartRequest;
 use App\Http\Requests\UpdateCartQuantityRequest;
 use App\Services\CartService;
@@ -15,7 +14,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Builder;
 
-class ProductController extends Controller
+class ShopController extends Controller
 {
     protected $cartService;
     protected const CACHE_TTL = 3600; // 1 hour
@@ -30,40 +29,42 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $cacheKey = 'products_' . md5($request->fullUrl());
-        
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($request) {
-            $query = Product::with(['category', 'reviews'])
-                          ->withAvg('reviews', 'rating')
-                          ->withCount('reviews');
+        $cacheKey = 'shops_' . md5($request->fullUrl());
+
+        $data = \Cache::remember($cacheKey, self::CACHE_TTL, function () use ($request) {
+            $query = Shop::query();
 
             // Apply filters using scopes
             $this->applyFilters($query, $request);
-            
+
             // Apply sorting
             $this->applySorting($query, $request);
 
-            $products = $query->paginate(12)->withQueryString();
-            
-            // Get categories and materials for filters
-            $categories = Category::withCount('products')->get();
-            $materials = Product::distinct()->pluck('material')->filter();
+            $shops = $query->paginate(12)->withQueryString();
+            $materials = Shop::distinct()->pluck('material')->filter();
 
-            return view('products.index', compact('products', 'categories', 'materials'));
+            // Only return data, not a view or closure!
+            return [
+                'shops' => $shops,
+                'materials' => $materials,
+            ];
         });
+
+        // Now return the view with the cached data
+        return view('shops.index', $data);
     }
 
-    public function show(Product $product)
+    public function show(Shop $shop)
     {
-        $product->load(['category', 'reviews.user', 'images']);
+        $shop->load(['images']);
         
-        // Get related products
-        $relatedProducts = $this->getRelatedProducts($product);
+        // Get related shops
+        $relatedShops = $this->getRelatedShops($shop);
         
         // Update recently viewed
-        $this->updateRecentlyViewed($product);
+        $this->updateRecentlyViewed($shop);
 
-        return view('products.show', compact('product', 'relatedProducts'));
+        return view('shops.show', compact('shop', 'relatedShops'));
     }
 
     public function addToCart(AddToCartRequest $request)
@@ -72,7 +73,7 @@ class ProductController extends Controller
             $this->checkRateLimit();
 
             $result = $this->cartService->addToCart(
-                $request->product_id,
+                $request->shop_id,
                 $request->quantity,
                 auth()->id()
             );
@@ -120,23 +121,16 @@ class ProductController extends Controller
         }
     }
 
-    public function quickView(Product $product)
+    public function quickView(Shop $shop)
     {
         return response()->json([
-            'id' => $product->id,
-            'name' => $product->name,
-            'description' => Str::limit($product->description, 100),
-            'price' => $product->price,
-            'sale_price' => $product->sale_price,
-            'formatted_price' => $product->formatted_price,
-            'formatted_sale_price' => $product->formatted_sale_price,
-            'discount_percentage' => $product->discount_percentage,
-            'image_url' => $product->image_url,
-            'min_order_quantity' => $product->min_order_quantity,
-            'max_order_quantity' => $product->max_order_quantity,
-            'stock' => $product->stock,
-            'average_rating' => $product->average_rating,
-            'total_reviews' => $product->total_reviews
+            'id' => $shop->id,
+            'name' => $shop->name,
+            'description' => Str::limit($shop->description, 100),
+            'price' => $shop->price,
+            'formatted_price' => $shop->formatted_price,
+            'image_url' => $shop->image_url,
+            'stock' => $shop->stock
         ]);
     }
 
@@ -144,25 +138,23 @@ class ProductController extends Controller
     {
         // Search
         if ($request->filled('search')) {
-            $query->search($request->get('search'));
-        }
-
-        // Category filter
-        if ($request->filled('category')) {
-            $query->byCategory($request->get('category'));
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', "%{$request->search}%")
+                  ->orWhere('description', 'like', "%{$request->search}%");
+            });
         }
 
         // Price range filter
         if ($request->filled(['min_price', 'max_price'])) {
-            $query->byPriceRange(
+            $query->whereBetween('price', [
                 $request->get('min_price'),
                 $request->get('max_price')
-            );
+            ]);
         }
 
         // Material filter
         if ($request->filled('material')) {
-            $query->byMaterial($request->get('material'));
+            $query->where('material', $request->get('material'));
         }
 
         // Availability filter
@@ -170,7 +162,7 @@ class ProductController extends Controller
             $query->inStock();
         }
 
-        // Active products only
+        // Active shops only
         $query->active();
     }
 
@@ -189,40 +181,31 @@ class ProductController extends Controller
             case 'name_desc':
                 $query->orderBy('name', 'desc');
                 break;
-            case 'popular':
-                $query->orderBy('reviews_count', 'desc');
-                break;
-            case 'rating':
-                $query->orderBy('reviews_avg_rating', 'desc');
-                break;
             default:
                 $query->latest();
                 break;
         }
     }
 
-    protected function getRelatedProducts(Product $product)
+    protected function getRelatedShops(Shop $shop)
     {
-        return Product::where('category_id', $product->category_id)
-            ->where('id', '!=', $product->id)
-            ->with(['category', 'reviews'])
-            ->withAvg('reviews', 'rating')
+        return Shop::where('id', '!=', $shop->id)
             ->inRandomOrder()
             ->take(4)
             ->get();
     }
 
-    protected function updateRecentlyViewed(Product $product): void
+    protected function updateRecentlyViewed(Shop $shop): void
     {
         $recentlyViewed = session()->get('recently_viewed', []);
         
-        // Remove the current product if it exists
-        $recentlyViewed = array_diff($recentlyViewed, [$product->id]);
+        // Remove the current shop if it exists
+        $recentlyViewed = array_diff($recentlyViewed, [$shop->id]);
         
-        // Add the current product to the beginning
-        array_unshift($recentlyViewed, $product->id);
+        // Add the current shop to the beginning
+        array_unshift($recentlyViewed, $shop->id);
         
-        // Keep only the last 4 products
+        // Keep only the last 4 shops
         $recentlyViewed = array_slice($recentlyViewed, 0, 4);
         
         session()->put('recently_viewed', $recentlyViewed);

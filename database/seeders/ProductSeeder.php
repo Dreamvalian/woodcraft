@@ -2,93 +2,64 @@
 
 namespace Database\Seeders;
 
-use App\Models\Product;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
+use App\Models\Product;
 
 class ProductSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         $products = [
             [
-                'name' => 'Classic Wooden Chair',
-                'description' => 'Handcrafted wooden chair made from premium teak wood. Features elegant carvings and comfortable design.',
-                'price' => 1250000,
-                'stock' => 10,
-                'image' => 'products/chair-1.jpg',
-                'model' => 'CH-001',
-                'category' => 'Furniture',
-                'features' => [
-                    'Premium teak wood',
-                    'Hand-carved details',
-                    'Ergonomic design',
-                    'Durable finish'
-                ]
+                'name' => 'Handcrafted Oak Dining Table',
+                'description' => 'Beautiful handcrafted oak dining table with traditional joinery. Perfect for family gatherings.',
+                'price' => 1299.99,
+                'stock' => 5,
+                'image_url' => 'products/oak-dining-table.jpg',
             ],
             [
-                'name' => 'Modern Coffee Table',
-                'description' => 'Contemporary coffee table with a minimalist design. Perfect for modern living spaces.',
-                'price' => 2500000,
-                'stock' => 8,
-                'image' => 'products/table-1.jpg',
-                'model' => 'CT-001',
-                'category' => 'Furniture',
-                'features' => [
-                    'Solid mahogany wood',
-                    'Tempered glass top',
-                    'Modern design',
-                    'Easy assembly'
-                ]
-            ],
-            [
-                'name' => 'Wooden Wall Shelf',
-                'description' => 'Decorative wall shelf with multiple compartments. Great for displaying books and decorative items.',
-                'price' => 750000,
+                'name' => 'Wooden Wall Clock',
+                'description' => 'Elegant wooden wall clock with hand-carved details. Battery operated.',
+                'price' => 89.99,
                 'stock' => 15,
-                'image' => 'products/shelf-1.jpg',
-                'model' => 'WS-001',
-                'category' => 'Storage',
-                'features' => [
-                    'Oak wood construction',
-                    'Multiple compartments',
-                    'Wall-mounted design',
-                    'Natural finish'
-                ]
+                'image_url' => 'products/wooden-wall-clock.jpg',
             ],
             [
-                'name' => 'Wooden Picture Frame',
-                'description' => 'Handcrafted wooden picture frame with intricate details. Perfect for your cherished memories.',
-                'price' => 350000,
+                'name' => 'Bamboo Cutting Board',
+                'description' => 'Eco-friendly bamboo cutting board with juice groove. Perfect for kitchen use.',
+                'price' => 29.99,
+                'stock' => 30,
+                'image_url' => 'products/bamboo-cutting-board.jpg',
+            ],
+            [
+                'name' => 'Wooden Planter Box',
+                'description' => 'Handcrafted wooden planter box for indoor plants. Includes drainage holes.',
+                'price' => 49.99,
                 'stock' => 20,
-                'image' => 'products/frame-1.jpg',
-                'model' => 'PF-001',
-                'category' => 'Decor',
-                'features' => [
-                    'Premium pine wood',
-                    'Hand-carved details',
-                    'Glass protection',
-                    'Multiple sizes available'
-                ]
+                'image_url' => 'products/wooden-planter.jpg',
             ],
             [
-                'name' => 'Wooden Jewelry Box',
-                'description' => 'Elegant jewelry box with multiple compartments and velvet lining. Perfect for organizing your precious accessories.',
-                'price' => 850000,
-                'stock' => 12,
-                'image' => 'products/jewelry-box-1.jpg',
-                'model' => 'JB-001',
-                'category' => 'Storage',
-                'features' => [
-                    'Solid walnut wood',
-                    'Velvet lining',
-                    'Multiple compartments',
-                    'Lock mechanism'
-                ]
-            ]
+                'name' => 'Teak Garden Bench',
+                'description' => 'Weather-resistant teak garden bench. Perfect for outdoor spaces.',
+                'price' => 299.99,
+                'stock' => 8,
+                'image_url' => 'products/teak-bench.jpg',
+            ],
         ];
 
         foreach ($products as $product) {
-            Product::create($product);
+            Product::create([
+                'name' => $product['name'],
+                'slug' => Str::slug($product['name']),
+                'description' => $product['description'],
+                'price' => $product['price'],
+                'stock' => $product['stock'],
+                'min_order_quantity' => 1,
+                'max_order_quantity' => 5,
+                'image_url' => $product['image_url'],
+                'is_active' => true,
+            ]);
         }
     }
 } 

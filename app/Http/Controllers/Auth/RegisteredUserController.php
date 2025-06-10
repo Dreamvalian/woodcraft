@@ -31,29 +31,25 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-   public function store(Request $request)
-{
-    $request->validate([
-        'name'     => 'required|string|max:255',
-        'username' => 'required|string|max:255|unique:users',
-        'email'    => 'required|string|email|max:255|unique:users',
-        'phone'    => 'required|string|max:20',
-        'address'  => 'required|string|max:255',
-        'password' => 'required|string|confirmed|min:8',
-    ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
 
-    $user = User::create([
-        'name'     => $request->name,
-        'username' => $request->username,
-        'email'    => $request->email,
-        'phone'    => $request->phone,
-        'address'  => $request->address,
-        'password' => \Hash::make($request->password),
-    ]);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'user', // Set default role
+        ]);
 
-    event(new \Illuminate\Auth\Events\Registered($user));
-    \Auth::login($user);
+        event(new Registered($user));
 
-    return redirect(\App\Providers\RouteServiceProvider::HOME);
-}
+        Auth::login($user);
+
+        return redirect(RouteServiceProvider::HOME);
+    }
 }

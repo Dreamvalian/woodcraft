@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
-use App\Models\Category;
+// use App\Models\Category; // This line should be removed or commented out
 use App\Services\CartService;
 use Illuminate\Support\Facades\Auth;
 
@@ -26,8 +26,8 @@ class ViewServiceProvider extends ServiceProvider
     public function boot()
     {
         View::composer('*', function ($view) {
-            $view->with('categories', Category::where('is_active', true)->get());
-            
+            // $view->with('categories', Category::where('is_active', true)->get()); // This line should be removed or commented out
+
             // Get cart count
             $cartCount = 0;
             if (Auth::check()) {
@@ -37,4 +37,4 @@ class ViewServiceProvider extends ServiceProvider
             $view->with('cartCount', $cartCount);
         });
     }
-} 
+}

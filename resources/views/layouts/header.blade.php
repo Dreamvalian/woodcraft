@@ -54,43 +54,13 @@
         <div class="flex items-center justify-between h-20">
             <!-- Logo -->
             <a href="{{ route('home') }}" class="flex-shrink-0">
-                <img class="h-12 w-auto" src="{{ asset('images/logo.png') }}" alt="Woodcraft">
+                <img class="h-12 w-auto" src="{{ asset('image\logo2.svg') }}" alt="Woodcraft">
             </a>
 
             <!-- Desktop Navigation -->
             <nav class="hidden md:flex space-x-8">
                 <a href="{{ route('home') }}" class="text-wood-600 hover:text-wood-900">Home</a>
-                <div x-data="{ open: false }" class="relative">
-                    <button 
-                        @click="open = !open"
-                        @click.away="open = false"
-                        class="text-wood-600 hover:text-wood-900 inline-flex items-center"
-                    >
-                        Shop
-                        <i class="fas fa-chevron-down ml-1 text-xs"></i>
-                    </button>
-                    <div 
-                        x-show="open"
-                        x-transition:enter="transition ease-out duration-200"
-                        x-transition:enter-start="opacity-0 transform scale-95"
-                        x-transition:enter-end="opacity-100 transform scale-100"
-                        x-transition:leave="transition ease-in duration-150"
-                        x-transition:leave-start="opacity-100 transform scale-100"
-                        x-transition:leave-end="opacity-0 transform scale-95"
-                        class="absolute z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
-                    >
-                        <div class="py-1">
-                            @foreach($categories as $category)
-                                <a 
-                                    href="{{ route('category', $category) }}"
-                                    class="block px-4 py-2 text-sm text-wood-600 hover:bg-wood-50 hover:text-wood-900"
-                                >
-                                    {{ $category->name }}
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
+                <a href="{{ route('shops.index') }}" class="text-wood-600 hover:text-wood-900">Shops</a>
                 <a href="{{ route('about') }}" class="text-wood-600 hover:text-wood-900">About</a>
                 <a href="{{ route('contact') }}" class="text-wood-600 hover:text-wood-900">Contact</a>
             </nav>
@@ -116,7 +86,7 @@
                                     type="text"
                                     x-model="searchQuery"
                                     @input.debounce.300ms="search"
-                                    placeholder="Search products..."
+                                    placeholder="Search shops..."
                                     class="w-full rounded-lg border-wood-300 shadow-sm focus:border-wood-500 focus:ring-wood-500"
                                 >
                                 <div 
@@ -132,7 +102,7 @@
                             >
                                 <template x-for="result in searchResults" :key="result.id">
                                     <a 
-                                        :href="'/products/' + result.id"
+                                        :href="'/shops/' + result.id"
                                         class="flex items-center space-x-4 p-2 hover:bg-wood-50 rounded-lg"
                                     >
                                         <img :src="result.image_url" :alt="result.name" class="w-12 h-12 object-cover rounded">
@@ -181,28 +151,6 @@
     >
         <div class="px-2 pt-2 pb-3 space-y-1">
             <a href="{{ route('home') }}" class="block px-3 py-2 rounded-md text-base font-medium text-wood-600 hover:text-wood-900 hover:bg-wood-50">Home</a>
-            <div x-data="{ open: false }">
-                <button 
-                    @click="open = !open"
-                    class="w-full flex items-center justify-between px-3 py-2 rounded-md text-base font-medium text-wood-600 hover:text-wood-900 hover:bg-wood-50"
-                >
-                    Shop
-                    <i class="fas fa-chevron-down text-xs"></i>
-                </button>
-                <div 
-                    x-show="open"
-                    class="pl-4 space-y-1"
-                >
-                    @foreach($categories as $category)
-                        <a 
-                            href="{{ route('category', $category) }}"
-                            class="block px-3 py-2 rounded-md text-base font-medium text-wood-600 hover:text-wood-900 hover:bg-wood-50"
-                        >
-                            {{ $category->name }}
-                        </a>
-                    @endforeach
-                </div>
-            </div>
             <a href="{{ route('about') }}" class="block px-3 py-2 rounded-md text-base font-medium text-wood-600 hover:text-wood-900 hover:bg-wood-50">About</a>
             <a href="{{ route('contact') }}" class="block px-3 py-2 rounded-md text-base font-medium text-wood-600 hover:text-wood-900 hover:bg-wood-50">Contact</a>
         </div>

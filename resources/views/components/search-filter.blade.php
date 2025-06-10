@@ -74,25 +74,6 @@
         x-transition:leave-end="opacity-0 -translate-y-2"
         class="space-y-6"
     >
-        {{-- Categories --}}
-        <div>
-            <h3 class="text-lg font-medium text-gray-900 mb-3">Categories</h3>
-            <div class="space-y-2">
-                @foreach($categories as $category)
-                    <label class="flex items-center">
-                        <input 
-                            type="checkbox"
-                            x-model="selectedCategories"
-                            value="{{ $category->id }}"
-                            @change="search()"
-                            class="rounded border-gray-300 text-wood focus:ring-wood"
-                        >
-                        <span class="ml-2 text-gray-700">{{ $category->name }}</span>
-                    </label>
-                @endforeach
-            </div>
-        </div>
-
         {{-- Price Range --}}
         <div>
             <h3 class="text-lg font-medium text-gray-900 mb-3">Price Range</h3>

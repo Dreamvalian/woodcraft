@@ -101,10 +101,6 @@
                             <span class="font-medium text-[#2C3E50]">Dimensions:</span>
                             <span class="text-[#7f8c8d]">{{ $product->dimensions }}</span>
                         </div>
-                        <div>
-                            <span class="font-medium text-[#2C3E50]">Category:</span>
-                            <span class="text-[#7f8c8d]">{{ $product->category->name }}</span>
-                        </div>
                     </div>
 
                     @if($product->features)

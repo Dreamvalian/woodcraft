@@ -23,7 +23,7 @@
         <div class="space-y-4 sm:space-y-0 sm:space-x-4">
             <a 
                 href="{{ url()->previous() }}"
-                class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-wood hover:bg-wood-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-wood"
+                class="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-wood"
             >
                 <i class="fas fa-arrow-left mr-2"></i>
                 Go Back
@@ -45,7 +45,7 @@
                     <input 
                         type="text"
                         name="q"
-                        placeholder="Search our products..."
+                        placeholder="Search our shops..."
                         class="flex-1 min-w-0 block w-full px-4 py-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-wood focus:border-transparent"
                     >
                     <button 
@@ -58,16 +58,16 @@
             </form>
         </div>
 
-        {{-- Popular Categories --}}
+        {{-- Popular Shops --}}
         <div class="mt-12">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Popular Categories</h3>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Popular Shops</h3>
             <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
-                @foreach(['Furniture', 'Decor', 'Kitchen', 'Outdoor', 'Bathroom', 'Lighting'] as $category)
+                @foreach(['Furniture', 'Decor', 'Kitchen', 'Outdoor', 'Bathroom', 'Lighting'] as $shop)
                     <a 
-                        href="{{ route('category', strtolower($category)) }}"
+                        href="{{ route('shops.index', ['material' => strtolower($shop)]) }}"
                         class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-wood"
                     >
-                        {{ $category }}
+                        {{ $shop }}
                     </a>
                 @endforeach
             </div>
