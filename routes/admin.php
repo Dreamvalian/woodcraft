@@ -6,11 +6,15 @@ use App\Http\Controllers\Admin\ShopController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\User\NotificationController;
+use App\Http\Controllers\Admin\ProductController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/export', [DashboardController::class, 'export'])->name('dashboard.export');
+
+    // Product Management
+    Route::resource('products', ProductController::class);
 
     // Shop Management
     // Route::resource('shops', ShopController::class);
