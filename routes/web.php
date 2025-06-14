@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ShopController;
-use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SearchController;
@@ -64,16 +63,6 @@ Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::get('/shops', [ProductController::class, 'index'])->name('shops.index');
 Route::get('/shops/{product:slug}', [ProductController::class, 'show'])->name('shops.show');
 Route::get('/api/shops/{shop}/quick-view', [ProductController::class, 'quickView'])->name('shops.quick-view');
-
-// Cart Routes
-Route::middleware(['web'])->group(function () {
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
-    Route::post('/cart/remove/{shop}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-    Route::get('/cart/summary', [CartController::class, 'summary'])->name('cart.summary');
-});
 
 // Checkout Routes
 Route::middleware(['auth'])->group(function () {

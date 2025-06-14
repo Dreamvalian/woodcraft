@@ -1,11 +1,14 @@
 <?php
 
-namespace App\Http\Controllers; // Keep this namespace if your file is at app/Http/Controllers/CartController.php
+namespace App\Http\Controllers\Cart;
 
-use App\Models\Product; // Assuming 'Shop' should be 'Product' based on previous context
+use App\Http\Controllers\Controller;
+use App\Models\Cart;
+use App\Models\CartItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Log; // Added for better error logging
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
@@ -16,124 +19,181 @@ class CartController extends Controller
      */
     public function index()
     {
-        $cart = Session::get('cart', []);
-        $items = [];
-        $total = 0;
+        $cart = Cart::where('user_id', Auth::id())
+            ->where('status', 'active')
+            ->with(['items.product'])
+            ->first();
 
-        // Fetch products that are actually in the cart from the database
-        // This prevents issues if product details change or if a product is deleted
-        $productIds = array_keys($cart);
-        $productsInCart = Product::whereIn('id', $productIds)->get()->keyBy('id');
-
-        foreach ($cart as $productId => $quantity) {
-            $product = $productsInCart->get($productId);
-
-            if ($product) { // Ensure product still exists in DB
-                // Use the effective_price if available, otherwise just price
-                $itemPrice = method_exists($product, 'getEffectivePriceAttribute') ? $product->effective_price : $product->price;
-
-                $items[] = [
-                    'product' => $product,
-                    'quantity' => $quantity,
-                    'subtotal' => $itemPrice * $quantity
-                ];
-                $total += $itemPrice * $quantity;
-            } else {
-                // If product no longer exists, remove it from session cart
-                unset($cart[$productId]);
-                Session::put('cart', $cart); // Update session immediately
-                Log::warning("Product ID {$productId} found in session cart but not in database. Removed from cart.");
-            }
+        if (!$cart) {
+            $cart = Cart::create([
+                'user_id' => Auth::id(),
+                'session_id' => session()->getId(),
+                'status' => 'active'
+            ]);
         }
 
-        return view('cart.index', compact('items', 'total'));
+        return view('cart.index', compact('cart'));
     }
 
     /**
      * Add a product to the cart.
      *
      * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function add(Request $request)
+    public function add(Request $request, Product $product)
     {
         $request->validate([
-            'product_id' => 'required|exists:products,id', // Changed to product_id, shops table to products table
-            'quantity' => 'required|integer|min:1'
+            'quantity' => [
+                'required',
+                'integer',
+                'min:' . $product->min_order_quantity,
+                'max:' . min($product->max_order_quantity, $product->stock)
+            ]
         ]);
 
-        $product = Product::findOrFail($request->product_id); // Changed to Product model
+        try {
+            DB::beginTransaction();
 
-        // Check stock based on *current* quantity in cart + new quantity
-        $cart = Session::get('cart', []);
-        $currentCartQuantity = $cart[$product->id] ?? 0;
-        $requestedQuantity = $request->quantity;
-        $newTotalQuantity = $currentCartQuantity + $requestedQuantity;
+            // Get or create cart
+            $cart = Cart::where('user_id', Auth::id())
+                ->where('status', 'active')
+                ->first();
 
-        if ($product->stock < $newTotalQuantity) {
-            return back()->with('error', 'Not enough stock available for the requested quantity. Current stock: ' . $product->stock);
+            if (!$cart) {
+                $cart = Cart::create([
+                    'user_id' => Auth::id(),
+                    'session_id' => session()->getId(),
+                    'status' => 'active'
+                ]);
+            }
+
+            // Check if product already exists in cart
+            $cartItem = $cart->items()
+                ->where('product_id', $product->id)
+                ->first();
+
+            if ($cartItem) {
+                // Update quantity if product exists
+                $newQuantity = $cartItem->quantity + $request->quantity;
+
+                if ($newQuantity > $product->stock) {
+                    throw new \Exception('Not enough stock available. Only ' . $product->stock . ' items left.');
+                }
+
+                if ($newQuantity > $product->max_order_quantity) {
+                    throw new \Exception('Maximum order quantity is ' . $product->max_order_quantity . ' items.');
+                }
+
+                $cartItem->update([
+                    'quantity' => $newQuantity,
+                    'price' => $product->price
+                ]);
+            } else {
+                // Add new item if product doesn't exist
+                if ($request->quantity > $product->stock) {
+                    throw new \Exception('Not enough stock available. Only ' . $product->stock . ' items left.');
+                }
+
+                if ($request->quantity < $product->min_order_quantity) {
+                    throw new \Exception('Minimum order quantity is ' . $product->min_order_quantity . ' items.');
+                }
+
+                if ($request->quantity > $product->max_order_quantity) {
+                    throw new \Exception('Maximum order quantity is ' . $product->max_order_quantity . ' items.');
+                }
+
+                $cart->items()->create([
+                    'product_id' => $product->id,
+                    'quantity' => $request->quantity,
+                    'price' => $product->price,
+                    'options' => []
+                ]);
+            }
+
+            DB::commit();
+
+            return back()->with('success', 'Item added to cart successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', $e->getMessage());
         }
-
-        if (isset($cart[$product->id])) {
-            $cart[$product->id] = $newTotalQuantity; // Update to new total
-        } else {
-            $cart[$product->id] = $requestedQuantity;
-        }
-
-        Session::put('cart', $cart);
-
-        return back()->with('success', 'Item added to cart successfully.');
     }
 
     /**
      * Update product quantity in the cart.
      *
      * @param  \Illuminate\Http\Request  $request
+     * @param  int  $itemId
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request)
+    public function update(Request $request, $itemId)
     {
         $request->validate([
-            'product_id' => 'required|exists:products,id', // Changed to product_id
-            'quantity' => 'required|integer|min:0' // 0 quantity will remove the item
+            'quantity' => 'required|integer|min:0'
         ]);
 
-        $product = Product::findOrFail($request->product_id); // Changed to Product model
-        $cart = Session::get('cart', []);
+        try {
+            DB::beginTransaction();
 
-        if ($request->quantity > $product->stock) { // Check against product's total stock
-            return back()->with('error', 'Not enough stock available for this quantity. Max allowed: ' . $product->stock);
+            $cart = Cart::where('user_id', Auth::id())
+                ->where('status', 'active')
+                ->firstOrFail();
+
+            $cartItem = $cart->items()->findOrFail($itemId);
+            $product = $cartItem->product;
+
+            if ($request->quantity > $product->stock) {
+                throw new \Exception('Not enough stock available. Only ' . $product->stock . ' items left.');
+            }
+
+            if ($request->quantity > 0) {
+                if ($request->quantity < $product->min_order_quantity) {
+                    throw new \Exception('Minimum order quantity is ' . $product->min_order_quantity . ' items.');
+                }
+
+                if ($request->quantity > $product->max_order_quantity) {
+                    throw new \Exception('Maximum order quantity is ' . $product->max_order_quantity . ' items.');
+                }
+
+                $cartItem->update([
+                    'quantity' => $request->quantity,
+                    'price' => $product->price
+                ]);
+            } else {
+                $cartItem->delete();
+            }
+
+            DB::commit();
+
+            return back()->with('success', 'Cart updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', $e->getMessage());
         }
-
-        if ($request->quantity > 0) {
-            $cart[$product->id] = $request->quantity;
-        } else {
-            // Quantity is 0, so remove the item
-            unset($cart[$product->id]);
-        }
-
-        Session::put('cart', $cart);
-
-        return back()->with('success', 'Cart updated successfully.');
     }
 
     /**
      * Remove a specific product from the cart.
      *
-     * @param  int  $productId
+     * @param  int  $itemId
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function remove($productId) // Changed parameter name to productId
+    public function remove($itemId)
     {
-        $cart = Session::get('cart', []);
+        try {
+            $cart = Cart::where('user_id', Auth::id())
+                ->where('status', 'active')
+                ->firstOrFail();
 
-        if (isset($cart[$productId])) { // Use productId directly
-            unset($cart[$productId]);
-            Session::put('cart', $cart);
+            $cartItem = $cart->items()->findOrFail($itemId);
+            $cartItem->delete();
+
             return back()->with('success', 'Item removed from cart successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to remove item from cart.');
         }
-
-        return back()->with('error', 'Item not found in cart.'); // More specific error
     }
 
     /**
@@ -143,7 +203,17 @@ class CartController extends Controller
      */
     public function clear()
     {
-        Session::forget('cart');
-        return back()->with('success', 'Cart cleared successfully.');
+        try {
+            $cart = Cart::where('user_id', Auth::id())
+                ->where('status', 'active')
+                ->firstOrFail();
+
+            $cart->items()->delete();
+            $cart->delete();
+
+            return back()->with('success', 'Cart cleared successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to clear cart.');
+        }
     }
 }
