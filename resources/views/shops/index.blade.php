@@ -1,254 +1,145 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <!-- Breadcrumb -->
-    <nav class="flex mb-12" aria-label="Breadcrumb">
-        <ol class="inline-flex items-center space-x-2">
-            <li class="inline-flex items-center">
-                <a href="{{ route('home') }}" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">
-                    <i class="fas fa-home mr-2"></i>
-                    Home
-                </a>
-            </li>
-            <li>
-                <div class="flex items-center">
-                    <i class="fas fa-chevron-right text-gray-400 mx-2 text-sm"></i>
-                    <span class="text-gray-900">Products</span>
+    <div class="min-h-screen bg-white">
+        <!-- Hero Section -->
+        <div class="relative bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="text-center">
+                    <h1 class="text-4xl font-light text-gray-900 mb-4">Handcrafted Wooden Products</h1>
+                    <p class="text-lg text-gray-500 max-w-2xl mx-auto">Discover our collection of meticulously crafted
+                        wooden pieces, each telling its own unique story.</p>
                 </div>
-            </li>
-        </ol>
-    </nav>
+            </div>
+        </div>
 
-    <div class="lg:grid lg:grid-cols-12 lg:gap-x-12">
-        <!-- Filters -->
-        <aside class="hidden lg:block lg:col-span-3">
-            <form action="{{ route('shops.index') }}" method="GET" x-data="{
-                priceRange: [{{ request('min_price', 0) }}, {{ request('max_price', 1000) }}],
-                submitForm() {
-                    this.$el.submit();
-                }
-            }" class="space-y-8">
-                <!-- Search -->
-                <div class="relative">
-                    <input
-                        type="text"
-                        placeholder="Search products..."
-                        class="w-full rounded-lg border-gray-200 shadow-sm focus:border-gray-300 focus:ring-0 text-sm pl-10"
-                        value="{{ request('search') }}"
-                        name="search"
-                    >
-                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                </div>
-
-                <!-- Sort Dropdown -->
-                <div class="relative">
-                    <select 
-                        name="sort" 
-                        class="w-full rounded-lg border-gray-200 text-sm focus:border-gray-300 focus:ring-0 appearance-none pl-10"
-                    >
-                        <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Newest</option>
-                        <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
-                        <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
-                        <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>Name: A to Z</option>
-                        <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>Name: Z to A</option>
-                    </select>
-                    <i class="fas fa-sort absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                    <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>
-                </div>
-
-                <!-- Price Range -->
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <h3 class="text-sm font-medium text-gray-900 mb-4">Price Range</h3>
-                    <div class="space-y-4">
-                        <div class="relative">
-                            <input type="range" x-model="priceRange[0]" min="0" max="1000" class="w-full accent-gray-900" name="min_price">
-                            <input type="range" x-model="priceRange[1]" min="0" max="1000" class="w-full accent-gray-900" name="max_price">
-                        </div>
-                        <div class="flex justify-between text-sm text-gray-600">
-                            <span x-text="'$' + priceRange[0]"></span>
-                            <span x-text="'$' + priceRange[1]"></span>
+        <!-- Main Content -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <!-- Search -->
+            <div class="mb-12">
+                <form action="{{ route('shops.index') }}" method="GET" class="max-w-xl mx-auto">
+                    <div class="relative">
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="Search our collection..."
+                            class="w-full pl-10 pr-4 py-3 text-sm border-0 bg-gray-50 rounded-lg focus:ring-2 focus:ring-gray-200">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
                         </div>
                     </div>
-                </div>
-
-                <!-- Material Filter -->
-                {{-- <div class="bg-gray-50 rounded-lg p-4">
-                    <h3 class="text-sm font-medium text-gray-900 mb-4">Material</h3>
-                    <div class="space-y-3">
-                        @foreach($materials as $material)
-                            <label class="flex items-center group cursor-pointer">
-                                <input type="radio" name="material" value="{{ $material }}" class="form-radio text-gray-900" {{ request('material') == $material ? 'checked' : '' }}>
-                                <span class="ml-2 text-sm text-gray-600 group-hover:text-gray-900 transition-colors duration-200">{{ $material }}</span>
-                            </label>
-                        @endforeach
-                    </div>
-                </div> --}}
-
-                <!-- Availability Filter -->
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <h3 class="text-sm font-medium text-gray-900 mb-4">Availability</h3>
-                    <label class="flex items-center group cursor-pointer">
-                        <input type="checkbox" name="in_stock" value="1" class="form-checkbox text-gray-900" {{ request('in_stock') ? 'checked' : '' }}>
-                        <span class="ml-2 text-sm text-gray-600 group-hover:text-gray-900 transition-colors duration-200">In Stock</span>
-                    </label>
-                </div>
-
-                <!-- Apply Filters Button -->
-                <button type="submit" class="w-full bg-transparent border-2 border-[#2C3E50] text-[#2C3E50] uppercase tracking-wider px-6 py-3 hover:bg-[#2C3E50] hover:text-white transition-all duration-300 font-light focus:outline-none focus:ring-2 focus:ring-[#2C3E50] focus:ring-offset-2">
-                    Apply Filters
-                </button>
-
-                <!-- Clear Filters -->
-                @if(request()->hasAny(['search', 'min_price', 'max_price', 'material', 'in_stock', 'sort']))
-                    <a href="{{ route('shops.index') }}" class="block text-center text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200">
-                        Clear all filters
-                    </a>
-                @endif
-            </form>
-        </aside>
-
-        <!-- Product Grid -->
-        <div class="mt-8 lg:mt-0 lg:col-span-9">
-            <!-- Results Count -->
-            <div class="mb-8">
-                <p class="text-sm text-gray-600">
-                    Showing {{ $products->firstItem() ?? 0 }} - {{ $products->lastItem() ?? 0 }} of {{ $products->total() }} results
-                </p>
+                </form>
             </div>
 
             <!-- Products Grid -->
-            <div class="grid grid-cols-1 gap-y-12 gap-x-6 sm:grid-cols-2 lg:grid-cols-3">
-                @forelse($products as $product)
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                @foreach($products as $product)
                     <div class="group">
-                        <a href="{{ route('shops.show', $product) }}" class="block relative overflow-hidden rounded-lg bg-gray-50">
-                            <img src="{{ $product->image_url }}" alt="{{ $product->name }}" 
-                                 class="w-full aspect-square object-cover transform transition-transform duration-500 group-hover:scale-105">
+                        <a href="{{ route('shops.show', $product->slug) }}" class="block">
+                            <div class="relative aspect-square mb-4 overflow-hidden rounded-lg bg-gray-50">
+                                <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
+                                    class="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110">
+                                @if($product->sale_price)
+                                    <div
+                                        class="absolute top-4 right-4 bg-white text-gray-900 px-3 py-1 text-xs font-medium rounded-full shadow-sm">
+                                        Sale
+                                    </div>
+                                @endif
+                                @if($product->stock <= 0)
+                                    <div class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
+                                        <span class="text-sm font-medium text-gray-900">Out of Stock</span>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="space-y-2">
+                                <h3
+                                    class="text-sm font-medium text-gray-900 group-hover:text-gray-600 transition-colors duration-200">
+                                    {{ $product->name }}
+                                </h3>
+                                <div class="flex items-center space-x-2">
+                                    @if($product->sale_price)
+                                        <span class="text-sm font-medium text-gray-900">
+                                            {{ $product->formatted_sale_price }}
+                                        </span>
+                                        <span class="text-sm text-gray-400 line-through">
+                                            {{ $product->formatted_price }}
+                                        </span>
+                                    @else
+                                        <span class="text-sm font-medium text-gray-900">
+                                            {{ $product->formatted_price }}
+                                        </span>
+                                    @endif
+                                </div>
+                                @if($product->stock > 0)
+                                    <p class="text-xs text-gray-500">
+                                        {{ $product->stock }} in stock
+                                    </p>
+                                @endif
+                            </div>
                         </a>
-                        <div class="mt-4 space-y-2">
-                            <a href="{{ route('shops.show', $product) }}" 
-                               class="text-base font-medium text-gray-900 hover:text-gray-600 transition-colors duration-200">
-                                {{ $product->name }}
-                            </a>
-                            <p class="text-gray-600">{{ $product->formatted_price }}</p>
-                        </div>
-                        <div class="mt-4">
-                            <button 
-                                @click="addToCart({{ $product->id }})"
-                                class="w-full bg-gray-900 text-white px-4 py-2.5 rounded-lg hover:bg-gray-800 transition-colors duration-200 text-sm font-medium"
-                                :class="{ 'opacity-50 cursor-not-allowed': loading }"
-                                :disabled="loading"
-                            >
-                                <span x-show="!loading">Add to Cart</span>
-                                <span x-show="loading" class="flex items-center justify-center">
-                                    <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Adding...
-                                </span>
+                        @if($product->stock > 0)
+                            <form action="{{ route('cart.add', $product) }}" method="POST" class="mt-4">
+                                @csrf
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit"
+                                    class="w-full bg-gray-900 text-white px-4 py-2.5 rounded-lg hover:bg-gray-800 transition-colors duration-200 text-sm font-medium flex items-center justify-center space-x-2">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    <span>Add to Cart</span>
+                                </button>
+                            </form>
+                        @else
+                            <button type="button" disabled
+                                class="w-full mt-4 bg-gray-200 text-gray-500 px-4 py-2.5 rounded-lg cursor-not-allowed text-sm font-medium flex items-center justify-center space-x-2">
+                                <i class="fas fa-ban"></i>
+                                <span>Out of Stock</span>
                             </button>
-                        </div>
+                        @endif
                     </div>
-                @empty
-                    <div class="col-span-full text-center py-12">
-                        <i class="fas fa-search text-gray-400 text-4xl mb-4"></i>
-                        <h3 class="text-lg font-medium text-gray-900 mb-2">No products found</h3>
-                        <p class="text-gray-600">Try adjusting your search or filter criteria</p>
-                    </div>
-                @endforelse
+                @endforeach
             </div>
 
             <!-- Pagination -->
-            <div class="mt-12">
-                {{ $products->links() }}
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Quick View Modal -->
-<div 
-    x-show="quickView"
-    x-transition:enter="transition ease-out duration-300"
-    x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100"
-    x-transition:leave="transition ease-in duration-200"
-    x-transition:leave-start="opacity-100"
-    x-transition:leave-end="opacity-0"
-    class="fixed inset-0 z-50 overflow-y-auto"
-    style="display: none;"
->
-    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div 
-            x-show="quickView"
-            x-transition:enter="transition ease-out duration-300"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
-            x-transition:leave="transition ease-in duration-200"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
-            class="fixed inset-0 transition-opacity"
-            aria-hidden="true"
-        >
-            <div class="absolute inset-0 bg-gray-900 opacity-75"></div>
-        </div>
-
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-        <div 
-            x-show="quickView"
-            x-transition:enter="transition ease-out duration-300"
-            x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-            x-transition:leave="transition ease-in duration-200"
-            x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-            x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6"
-        >
-            <div class="absolute top-0 right-0 pt-4 pr-4">
-                <button 
-                    @click="quickView = null"
-                    class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none"
-                >
-                    <span class="sr-only">Close</span>
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="sm:flex sm:items-start">
-                <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                    <template x-if="quickView">
-                        <div>
-                            <img 
-                                :src="shops.find(s => s.id === quickView).image_url"
-                                :alt="shops.find(s => s.id === quickView).name"
-                                class="w-full aspect-square object-cover rounded-lg"
-                            >
-                            <h3 class="mt-4 text-lg font-medium text-gray-900" x-text="shops.find(s => s.id === quickView).name"></h3>
-                            <p class="mt-2 text-lg font-medium text-gray-900">$<span x-text="shops.find(s => s.id === quickView).price"></span></p>
-                            <p class="mt-2 text-sm text-gray-600" x-text="shops.find(s => s.id === quickView).description"></p>
-                            <div class="mt-4">
-                                <button 
-                                    @click="addToCart(quickView)"
-                                    class="w-full bg-gray-900 text-white px-4 py-2.5 rounded-lg hover:bg-gray-800 transition-colors duration-200 text-sm font-medium"
-                                    :class="{ 'opacity-50 cursor-not-allowed': loading }"
-                                    :disabled="loading"
-                                >
-                                    <span x-show="!loading">Add to Cart</span>
-                                    <span x-show="loading" class="flex items-center justify-center">
-                                        <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        Adding...
-                                    </span>
-                                </button>
-                            </div>
-                        </div>
-                    </template>
+            @if($products->hasPages())
+                <div class="mt-12">
+                    {{ $products->links() }}
                 </div>
-            </div>
+            @endif
+
+            <!-- Empty State -->
+            @if($products->isEmpty())
+                <div class="text-center py-16">
+                    <div class="w-16 h-16 mx-auto mb-4 text-gray-300">
+                        <i class="fas fa-box-open text-4xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No products found</h3>
+                    <p class="text-sm text-gray-500 mb-6">Try adjusting your search criteria</p>
+                    <a href="{{ route('shops.index') }}"
+                        class="inline-block px-6 py-3 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors duration-200">
+                        Clear Search
+                    </a>
+                </div>
+            @endif
         </div>
     </div>
-</div>
+
+    @push('styles')
+        <style>
+            /* Custom scrollbar */
+            ::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: #f1f1f1;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: #888;
+                border-radius: 4px;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #555;
+            }
+        </style>
+    @endpush
 @endsection

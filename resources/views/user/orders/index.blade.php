@@ -38,8 +38,7 @@
 				<h4 class="text-sm text-[#E67E22] uppercase mb-3 tracking-widest font-light">Your Orders</h4>
 				<h1 class="text-6xl font-light mb-6 leading-tight text-[#2C3E50]">Order History</h1>
 				<p class="text-gray-600 mb-8 text-lg max-w-md leading-relaxed font-light">
-					Track and manage all your orders in one place. View order details, track shipments, and manage your
-					purchases.
+					Track and manage all your orders in one place. View order details, track shipments, and manage your purchases.
 				</p>
 			</div>
 		</div>
@@ -72,13 +71,13 @@
 					<div class="absolute -bottom-2 -right-2 w-4 h-4 border-b-2 border-r-2 border-[#E67E22]/30"></div>
 
 					<p class="text-gray-600 text-lg mb-6">You haven't placed any orders yet.</p>
-					<a href="{{ route('shops.index') }}"
+					<a href="{{ route('home') }}"
 						class="relative bg-transparent border-2 border-[#2C3E50] text-[#2C3E50] uppercase tracking-wider px-12 py-4 hover:bg-[#2C3E50] hover:text-white transition-all duration-300 font-light focus:outline-none focus:ring-2 focus:ring-[#2C3E50] focus:ring-offset-2 inline-block">
 						Start Shopping
 					</a>
 				</div>
 			@else
-				<div class="space-y-6">
+				<div class="space-y-8">
 					@foreach($orders as $order)
 						<div class="bg-white rounded-lg shadow-lg overflow-hidden relative">
 							{{-- Hand-drawn frame decoration --}}
@@ -90,32 +89,72 @@
 							<div class="absolute -bottom-2 -left-2 w-4 h-4 border-b-2 border-l-2 border-[#E67E22]/30"></div>
 							<div class="absolute -bottom-2 -right-2 w-4 h-4 border-b-2 border-r-2 border-[#E67E22]/30"></div>
 
-							<div class="p-6">
-								<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+							<div class="p-8">
+								<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
 									<div>
-										<h3 class="text-xl font-light text-[#2C3E50]">Order #{{ $order->id }}</h3>
-										<p class="text-gray-600 mt-1">{{ $order->placed_at->format('F d, Y \a\t h:i A') }}</p>
+										<h3 class="text-xl font-light text-[#2C3E50]">Order #{{ $order->order_number }}</h3>
+										<p class="text-gray-600 mt-1">{{ $order->created_at->format('F d, Y \a\t h:i A') }}</p>
 									</div>
 									<div class="mt-4 md:mt-0">
-										<span class="px-3 py-1 rounded-full text-sm font-semibold
-																															@if($order->status === 'completed') bg-green-100 text-green-800
-																															@elseif($order->status === 'cancelled') bg-red-100 text-red-800
-																																@else bg-yellow-100 text-yellow-800
-																															@endif">
+										<span class="px-4 py-2 rounded-full text-sm font-light
+																@if($order->status === 'completed') bg-green-100 text-green-800
+																@elseif($order->status === 'cancelled') bg-red-100 text-red-800
+																	@else bg-yellow-100 text-yellow-800
+																@endif">
 											{{ ucfirst($order->status) }}
 										</span>
 									</div>
 								</div>
 
-								<div class="flex flex-col md:flex-row justify-between items-start md:items-center">
-									<div class="text-gray-600">
-										<p class="font-light">Total: <span
-												class="font-medium text-[#2C3E50]">${{ number_format($order->total, 2) }}</span></p>
+								<div class="border-t border-gray-200 pt-6">
+									<div class="space-y-6">
+										@foreach($order->items as $item)
+											<div class="flex items-center space-x-6">
+												@if($item->product->image_url)
+													<div class="flex-shrink-0">
+														<img src="{{ $item->product->image_url }}" alt="{{ $item->product->name }}"
+															class="h-20 w-20 object-cover rounded-lg">
+													</div>
+												@endif
+												<div class="flex-1 min-w-0">
+													<p class="text-lg font-light text-[#2C3E50]">{{ $item->product->name }}</p>
+													<p class="text-gray-600">Quantity: {{ $item->quantity }}</p>
+												</div>
+												<div class="text-right">
+													<p class="text-lg font-light text-[#2C3E50]">${{ number_format($item->price * $item->quantity, 2) }}
+													</p>
+												</div>
+											</div>
+										@endforeach
 									</div>
-									<a href="{{ route('orders.show', $order) }}"
-										class="mt-4 md:mt-0 relative bg-transparent border-2 border-[#2C3E50] text-[#2C3E50] uppercase tracking-wider px-8 py-2 hover:bg-[#2C3E50] hover:text-white transition-all duration-300 font-light focus:outline-none focus:ring-2 focus:ring-[#2C3E50] focus:ring-offset-2 inline-block">
-										View Details
-									</a>
+
+									<div class="mt-6 pt-6 border-t border-gray-200">
+										<div class="flex justify-between items-center">
+											<div class="text-gray-600">
+												<p class="font-light">Total Items: {{ $order->items->count() }}</p>
+												<p class="font-light">Shipping: {{ ucfirst($order->shipping_method) }}</p>
+											</div>
+											<div class="text-right">
+												<p class="text-xl font-light text-[#2C3E50]">Total: ${{ number_format($order->total, 2) }}</p>
+											</div>
+										</div>
+									</div>
+
+									<div class="mt-6 flex justify-end space-x-4">
+										<a href="{{ route('orders.show', $order) }}"
+											class="relative bg-transparent border-2 border-[#2C3E50] text-[#2C3E50] uppercase tracking-wider px-8 py-3 hover:bg-[#2C3E50] hover:text-white transition-all duration-300 font-light focus:outline-none focus:ring-2 focus:ring-[#2C3E50] focus:ring-offset-2 inline-block">
+											View Details
+										</a>
+										@if($order->status === 'pending')
+											<form action="{{ route('orders.cancel', $order) }}" method="POST" class="inline">
+												@csrf
+												<button type="submit"
+													class="relative bg-transparent border-2 border-red-500 text-red-500 uppercase tracking-wider px-8 py-3 hover:bg-red-500 hover:text-white transition-all duration-300 font-light focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+													Cancel Order
+												</button>
+											</form>
+										@endif
+									</div>
 								</div>
 							</div>
 						</div>

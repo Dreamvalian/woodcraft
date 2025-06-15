@@ -4,7 +4,7 @@
 
 @section('content')
   <div class="min-h-screen bg-cover bg-center relative overflow-hidden"
-    style="background-image: url('{{ asset('image/forest-wood-craft.jpg') }}')">
+    style="background-image: url('{{ asset('image/forest-wood-craft.jpg') }}'); background-color: rgba(0,0,0,0.4); background-blend-mode: multiply;">
     <!-- Decorative Pattern Overlay -->
     <div class="absolute inset-0 bg-[#2C3E50]/20 backdrop-blur-[2px]">
     <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=\" 60\" height=\"60\"
@@ -34,7 +34,7 @@
       <!-- Enter Button -->
       <div class="text-center">
       <a href="{{ route('login') }}"
-        class="inline-block px-12 py-4 bg-[#E67E22] text-white text-lg font-light rounded-lg shadow-lg hover:bg-[#2C3E50] transition-all duration-300 transform hover:scale-105">
+        class="inline-block px-8 py-3 border-2 border-[#E67E22] text-[#E67E22] bg-transparent rounded-md hover:bg-[#E67E22] hover:text-white transition-all font-light uppercase tracking-wider">
         Enter Workshop
       </a>
       </div>

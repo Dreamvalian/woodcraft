@@ -38,8 +38,8 @@
       <h4 class="text-sm text-[#E67E22] uppercase mb-3 tracking-widest font-light">Our Story</h4>
       <h1 class="text-6xl font-light mb-6 leading-tight text-[#2C3E50]">Crafting Excellence <br>Since 2023</h1>
       <p class="text-gray-600 mb-8 text-lg max-w-md leading-relaxed font-light">
-      Hasil karya kami dan kepercayaan klien adalah bukti nyata kami. Kami berdedikasi untuk menciptakan
-      produk kayu yang unik, elegan, dan tahan lama.
+      Our work and client trust are tangible proof of our dedication. We are committed to creating unique, elegant,
+      and durable wooden products.
       </p>
     </div>
     <div class="md:w-1/2 relative">
@@ -261,15 +261,14 @@
       <h2 class="text-3xl font-light mb-8 text-[#2C3E50]">Wood Craft</h2>
       <div class="space-y-6">
       <p class="text-gray-600 leading-relaxed font-light">
-        Selamat datang di Wood Craft! Kami adalah perusahaan yang didedikasikan untuk seni kerajinan kayu
-        yang indah dan berkualitas. Dengan pengalaman bertahun-tahun di industri ini, kami dengan bangga
-        menciptakan produk kayu yang unik, elegan, dan tahan lama.
+        Welcome to Wood Craft! We are a company dedicated to creating beautiful and high-quality wood craftsmanship.
+        With years of experience in this industry, we take pride in creating unique, elegant, and durable wooden
+        products.
       </p>
       <p class="text-gray-600 leading-relaxed font-light">
-        Kami percaya bahwa kayu bukan hanya bahan struktural yang memberikan kekuatan dan umur panjang,
-        tetapi juga media ekspresi artistik. Dengan pemahaman mendalam para pengrajin kami terhadap jenis,
-        serat, dan finishing kayu, kami menjamin bahwa setiap produk yang kami hasilkan memenuhi standar
-        tertinggi dalam kerajinan tangan.
+        We believe that wood is not just a structural material that provides strength and longevity, but also a medium
+        for artistic expression. With our craftsmen's deep understanding of wood types, grains, and finishes, we
+        ensure that every product we create meets the highest standards of craftsmanship.
       </p>
       <p class="text-gray-600 leading-relaxed font-light">
         Perjalanan kami dibentuk oleh komitmen terhadap keberlanjutan, menggunakan bahan-bahan yang dipilih

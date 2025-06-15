@@ -1,444 +1,223 @@
-<x-app-layout>
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
-                    <div x-data="checkout()" class="space-y-8">
-                        <!-- Progress Steps -->
-                        <div class="flex justify-between items-center">
-                            <template x-for="(step, index) in steps" :key="index">
-                                <div class="flex items-center">
-                                    <div :class="{
-                                        'bg-blue-600': currentStep >= index,
-                                        'bg-gray-200': currentStep < index
-                                    }" class="w-8 h-8 rounded-full flex items-center justify-center text-white">
-                                        <span x-text="index + 1"></span>
-                                    </div>
-                                    <span class="ml-2" x-text="step"></span>
-                                    <div x-show="index < steps.length - 1" class="w-24 h-1 mx-4" :class="{
-                                        'bg-blue-600': currentStep > index,
-                                        'bg-gray-200': currentStep <= index
-                                    }"></div>
-                                </div>
-                            </template>
-                        </div>
+@extends('layouts.app')
 
-                        <!-- Step 1: Shipping Address -->
-                        <div x-show="currentStep === 0">
-                            <h2 class="text-2xl font-semibold mb-4">Shipping Address</h2>
-                            
-                            <!-- Saved Addresses -->
-                            <div class="mb-6">
-                                <h3 class="text-lg font-medium mb-2">Saved Addresses</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    @foreach($addresses as $address)
-                                        <div class="border rounded-lg p-4 cursor-pointer hover:border-blue-500"
-                                             :class="{'border-blue-500': selectedShippingAddress === {{ $address->id }}}"
-                                             @click="selectShippingAddress({{ $address->id }})">
-                                            <div class="font-medium" x-text="'{{ $address->full_name }}'"></div>
-                                            <div class="text-gray-600">
-                                                <p x-text="'{{ $address->address_line1 }}'"></p>
-                                                <p x-text="'{{ $address->address_line2 }}'"></p>
-                                                <p x-text="'{{ $address->city }}, {{ $address->state }} {{ $address->postal_code }}'"></p>
-                                                <p x-text="'{{ $address->country }}'"></p>
-                                                <p x-text="'{{ $address->phone }}'"></p>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-
-                            <!-- New Address Form -->
-                            <div class="mt-6">
-                                <h3 class="text-lg font-medium mb-2">Add New Address</h3>
-                                <form @submit.prevent="saveAddress" class="space-y-4">
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Full Name</label>
-                                            <input type="text" x-model="newAddress.full_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Phone</label>
-                                            <input type="text" x-model="newAddress.phone" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                        </div>
-                                        <div class="md:col-span-2">
-                                            <label class="block text-sm font-medium text-gray-700">Address Line 1</label>
-                                            <input type="text" x-model="newAddress.address_line1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                        </div>
-                                        <div class="md:col-span-2">
-                                            <label class="block text-sm font-medium text-gray-700">Address Line 2</label>
-                                            <input type="text" x-model="newAddress.address_line2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">City</label>
-                                            <input type="text" x-model="newAddress.city" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">State/Province</label>
-                                            <input type="text" x-model="newAddress.state" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Postal Code</label>
-                                            <input type="text" x-model="newAddress.postal_code" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Country</label>
-                                            <input type="text" x-model="newAddress.country" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input type="checkbox" x-model="newAddress.is_default" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                        <label class="ml-2 block text-sm text-gray-900">Set as default address</label>
-                                    </div>
-                                    <div class="flex justify-end">
-                                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                                            Save Address
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-
-                        <!-- Step 2: Shipping Method -->
-                        <div x-show="currentStep === 1">
-                            <h2 class="text-2xl font-semibold mb-4">Shipping Method</h2>
-                            <div class="space-y-4">
-                                <div class="border rounded-lg p-4 cursor-pointer hover:border-blue-500"
-                                     :class="{'border-blue-500': selectedShippingMethod === 'standard'}"
-                                     @click="selectShippingMethod('standard')">
-                                    <div class="flex justify-between items-center">
-                                        <div>
-                                            <h3 class="font-medium">Standard Shipping</h3>
-                                            <p class="text-gray-600">3-5 business days</p>
-                                        </div>
-                                        <div class="text-lg font-medium" x-text="formatPrice(standardShippingCost)"></div>
-                                    </div>
-                                </div>
-                                <div class="border rounded-lg p-4 cursor-pointer hover:border-blue-500"
-                                     :class="{'border-blue-500': selectedShippingMethod === 'express'}"
-                                     @click="selectShippingMethod('express')">
-                                    <div class="flex justify-between items-center">
-                                        <div>
-                                            <h3 class="font-medium">Express Shipping</h3>
-                                            <p class="text-gray-600">1-2 business days</p>
-                                        </div>
-                                        <div class="text-lg font-medium" x-text="formatPrice(expressShippingCost)"></div>
-                                    </div>
-                                </div>
-                                <div class="border rounded-lg p-4 cursor-pointer hover:border-blue-500"
-                                     :class="{'border-blue-500': selectedShippingMethod === 'overnight'}"
-                                     @click="selectShippingMethod('overnight')">
-                                    <div class="flex justify-between items-center">
-                                        <div>
-                                            <h3 class="font-medium">Overnight Shipping</h3>
-                                            <p class="text-gray-600">Next business day</p>
-                                        </div>
-                                        <div class="text-lg font-medium" x-text="formatPrice(overnightShippingCost)"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step 3: Payment Method -->
-                        <div x-show="currentStep === 2">
-                            <h2 class="text-2xl font-semibold mb-4">Payment Method</h2>
-                            <div class="space-y-4">
-                                <div class="border rounded-lg p-4 cursor-pointer hover:border-blue-500"
-                                     :class="{'border-blue-500': selectedPaymentMethod === 'credit_card'}"
-                                     @click="selectPaymentMethod('credit_card')">
-                                    <div class="flex items-center">
-                                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
-                                        </svg>
-                                        <span>Credit Card</span>
-                                    </div>
-                                </div>
-                                <div class="border rounded-lg p-4 cursor-pointer hover:border-blue-500"
-                                     :class="{'border-blue-500': selectedPaymentMethod === 'bank_transfer'}"
-                                     @click="selectPaymentMethod('bank_transfer')">
-                                    <div class="flex items-center">
-                                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
-                                        </svg>
-                                        <span>Bank Transfer</span>
-                                    </div>
-                                </div>
-                                <div class="border rounded-lg p-4 cursor-pointer hover:border-blue-500"
-                                     :class="{'border-blue-500': selectedPaymentMethod === 'e_wallet'}"
-                                     @click="selectPaymentMethod('e_wallet')">
-                                    <div class="flex items-center">
-                                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                                        </svg>
-                                        <span>E-Wallet</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step 4: Review Order -->
-                        <div x-show="currentStep === 3">
-                            <h2 class="text-2xl font-semibold mb-4">Review Order</h2>
-                            <div class="space-y-6">
-                                <!-- Order Summary -->
-                                <div class="border rounded-lg p-4">
-                                    <h3 class="text-lg font-medium mb-4">Order Summary</h3>
-                                    <div class="space-y-2">
-                                        <template x-for="item in summary.items" :key="item.id">
-                                            <div class="flex justify-between">
-                                                <div>
-                                                    <span x-text="item.name"></span>
-                                                    <span class="text-gray-600" x-text="'x' + item.quantity"></span>
-                                                </div>
-                                                <span x-text="item.formatted_subtotal"></span>
-                                            </div>
-                                        </template>
-                                        <div class="border-t pt-2 mt-2">
-                                            <div class="flex justify-between">
-                                                <span>Subtotal</span>
-                                                <span x-text="summary.formatted_subtotal"></span>
-                                            </div>
-                                            <div class="flex justify-between">
-                                                <span>Shipping</span>
-                                                <span x-text="formatPrice(selectedShippingCost)"></span>
-                                            </div>
-                                            <div class="flex justify-between font-medium">
-                                                <span>Total</span>
-                                                <span x-text="formatPrice(summary.total + selectedShippingCost)"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Shipping Address -->
-                                <div class="border rounded-lg p-4">
-                                    <h3 class="text-lg font-medium mb-2">Shipping Address</h3>
-                                    <div x-text="getSelectedAddressDetails()"></div>
-                                </div>
-
-                                <!-- Shipping Method -->
-                                <div class="border rounded-lg p-4">
-                                    <h3 class="text-lg font-medium mb-2">Shipping Method</h3>
-                                    <div x-text="getSelectedShippingMethodDetails()"></div>
-                                </div>
-
-                                <!-- Payment Method -->
-                                <div class="border rounded-lg p-4">
-                                    <h3 class="text-lg font-medium mb-2">Payment Method</h3>
-                                    <div x-text="getSelectedPaymentMethodDetails()"></div>
-                                </div>
-
-                                <!-- Order Notes -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Order Notes (Optional)</label>
-                                    <textarea x-model="orderNotes" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Navigation Buttons -->
-                        <div class="flex justify-between mt-8">
-                            <button x-show="currentStep > 0" @click="previousStep" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300">
-                                Back
-                            </button>
-                            <button x-show="currentStep < steps.length - 1" @click="nextStep" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                                Continue
-                            </button>
-                            <button x-show="currentStep === steps.length - 1" @click="placeOrder" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
-                                Place Order
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+@section('content')
+  <div class="min-h-screen bg-white">
+    <!-- Background Wood Grain Pattern -->
+    <div class="absolute inset-0 opacity-[0.02] pointer-events-none">
+    <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <pattern id="wood-grain" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+      <path d="M0,0 L100,0 L100,100 L0,100 Z" fill="none" stroke="currentColor" stroke-width="0.5" />
+      <path d="M0,20 Q25,15 50,20 T100,20" stroke="currentColor" fill="none" stroke-width="0.3" />
+      <path d="M0,40 Q25,35 50,40 T100,40" stroke="currentColor" fill="none" stroke-width="0.3" />
+      <path d="M0,60 Q25,55 50,60 T100,60" stroke="currentColor" fill="none" stroke-width="0.3" />
+      <path d="M0,80 Q25,75 50,80 T100,80" stroke="currentColor" fill="none" stroke-width="0.3" />
+      </pattern>
+      <rect x="0" y="0" width="100" height="100" fill="url(#wood-grain)" />
+    </svg>
     </div>
 
-    @push('scripts')
+    <div class="max-w-7xl mx-auto px-6 md:px-24 py-16">
+    <div class="relative">
+      <!-- Decorative corner elements -->
+      <div class="absolute -top-4 -left-4 w-8 h-8 opacity-10">
+      <svg viewBox="0 0 100 100" class="w-full h-full">
+        <path d="M0,0 L100,0 L0,100" stroke="currentColor" fill="none" stroke-width="2" />
+        <path d="M20,0 L100,0" stroke="currentColor" fill="none" stroke-width="1" />
+        <path d="M40,0 L100,0" stroke="currentColor" fill="none" stroke-width="1" />
+      </svg>
+      </div>
+      <div class="absolute -top-4 -right-4 w-8 h-8 opacity-10">
+      <svg viewBox="0 0 100 100" class="w-full h-full">
+        <path d="M0,0 L100,0 L0,100" stroke="currentColor" fill="none" stroke-width="2" />
+        <path d="M20,0 L100,0" stroke="currentColor" fill="none" stroke-width="1" />
+        <path d="M40,0 L100,0" stroke="currentColor" fill="none" stroke-width="1" />
+      </svg>
+      </div>
+
+      <h4 class="text-sm text-[#E67E22] uppercase mb-3 tracking-widest font-light">Complete Your Order</h4>
+      <h1 class="text-4xl font-light text-[#2C3E50] mb-12">Checkout</h1>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <!-- Left Column: Order Form -->
+      <div class="space-y-8">
+        <form action="{{ route('checkout.store') }}" method="POST" id="checkout-form" class="space-y-8">
+        @csrf
+
+        <!-- Shipping Information -->
+        <div
+          class="bg-white rounded-xl border border-gray-100 p-8 shadow-sm transition-all duration-200 hover:shadow-md">
+          <h2 class="text-xl font-light text-[#2C3E50] mb-6">Shipping Information</h2>
+
+          @if($addresses->count() > 0)
+        <div class="mb-6">
+        <label class="block text-sm font-light text-gray-700 mb-2">Select a saved address</label>
+        <select name="address_id"
+          class="w-full rounded-lg border-gray-200 bg-white/50 backdrop-blur-sm focus:border-[#E67E22] focus:ring-[#E67E22] transition duration-200">
+          @foreach($addresses as $address)
+        <option value="{{ $address->id }}">
+        {{ $address->full_name }} - {{ $address->address_line1 }}, {{ $address->city }}
+        </option>
+        @endforeach
+        </select>
+        </div>
+      @endif
+
+          <div class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+            <label class="block text-sm font-light text-gray-700 mb-2">Full Name</label>
+            <input type="text" name="full_name" required
+              class="w-full rounded-lg border-gray-200 bg-white/50 backdrop-blur-sm focus:border-[#E67E22] focus:ring-[#E67E22] transition duration-200">
+            </div>
+            <div>
+            <label class="block text-sm font-light text-gray-700 mb-2">Phone</label>
+            <input type="tel" name="phone" required
+              class="w-full rounded-lg border-gray-200 bg-white/50 backdrop-blur-sm focus:border-[#E67E22] focus:ring-[#E67E22] transition duration-200">
+            </div>
+            <div class="md:col-span-2">
+            <label class="block text-sm font-light text-gray-700 mb-2">Address Line 1</label>
+            <input type="text" name="address_line1" required
+              class="w-full rounded-lg border-gray-200 bg-white/50 backdrop-blur-sm focus:border-[#E67E22] focus:ring-[#E67E22] transition duration-200">
+            </div>
+            <div class="md:col-span-2">
+            <label class="block text-sm font-light text-gray-700 mb-2">Address Line 2</label>
+            <input type="text" name="address_line2"
+              class="w-full rounded-lg border-gray-200 bg-white/50 backdrop-blur-sm focus:border-[#E67E22] focus:ring-[#E67E22] transition duration-200">
+            </div>
+            <div>
+            <label class="block text-sm font-light text-gray-700 mb-2">City</label>
+            <input type="text" name="city" required
+              class="w-full rounded-lg border-gray-200 bg-white/50 backdrop-blur-sm focus:border-[#E67E22] focus:ring-[#E67E22] transition duration-200">
+            </div>
+            <div>
+            <label class="block text-sm font-light text-gray-700 mb-2">State/Province</label>
+            <input type="text" name="state" required
+              class="w-full rounded-lg border-gray-200 bg-white/50 backdrop-blur-sm focus:border-[#E67E22] focus:ring-[#E67E22] transition duration-200">
+            </div>
+            <div>
+            <label class="block text-sm font-light text-gray-700 mb-2">Postal Code</label>
+            <input type="text" name="postal_code" required
+              class="w-full rounded-lg border-gray-200 bg-white/50 backdrop-blur-sm focus:border-[#E67E22] focus:ring-[#E67E22] transition duration-200">
+            </div>
+            <div>
+            <label class="block text-sm font-light text-gray-700 mb-2">Country</label>
+            <input type="text" name="country" required
+              class="w-full rounded-lg border-gray-200 bg-white/50 backdrop-blur-sm focus:border-[#E67E22] focus:ring-[#E67E22] transition duration-200">
+            </div>
+          </div>
+          </div>
+        </div>
+
+        <!-- Shipping Method -->
+        <div
+          class="bg-white rounded-xl border border-gray-100 p-8 shadow-sm transition-all duration-200 hover:shadow-md">
+          <h2 class="text-xl font-light text-[#2C3E50] mb-6">Shipping Method</h2>
+          <div class="space-y-4">
+          <label
+            class="flex items-center space-x-4 p-4 rounded-lg border border-gray-100 hover:border-[#E67E22] transition duration-200 cursor-pointer">
+            <input type="radio" name="shipping_method" value="standard" checked
+            data-cost="{{ $standardShippingCost }}"
+            class="w-5 h-5 text-[#E67E22] focus:ring-[#E67E22] border-gray-300 transition duration-200">
+            <span class="text-gray-700 font-light">Standard Shipping (3-5 business days) - <span
+              class="font-medium text-[#E67E22]">${{ number_format($standardShippingCost, 2) }}</span></span>
+          </label>
+          <label
+            class="flex items-center space-x-4 p-4 rounded-lg border border-gray-100 hover:border-[#E67E22] transition duration-200 cursor-pointer">
+            <input type="radio" name="shipping_method" value="express" data-cost="{{ $expressShippingCost }}"
+            class="w-5 h-5 text-[#E67E22] focus:ring-[#E67E22] border-gray-300 transition duration-200">
+            <span class="text-gray-700 font-light">Express Shipping (1-2 business days) - <span
+              class="font-medium text-[#E67E22]">${{ number_format($expressShippingCost, 2) }}</span></span>
+          </label>
+          <label
+            class="flex items-center space-x-4 p-4 rounded-lg border border-gray-100 hover:border-[#E67E22] transition duration-200 cursor-pointer">
+            <input type="radio" name="shipping_method" value="overnight" data-cost="{{ $overnightShippingCost }}"
+            class="w-5 h-5 text-[#E67E22] focus:ring-[#E67E22] border-gray-300 transition duration-200">
+            <span class="text-gray-700 font-light">Overnight Shipping (Next business day) - <span
+              class="font-medium text-[#E67E22]">${{ number_format($overnightShippingCost, 2) }}</span></span>
+          </label>
+          </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div
+          class="bg-white rounded-xl border border-gray-100 p-8 shadow-sm transition-all duration-200 hover:shadow-md">
+          <h2 class="text-xl font-light text-[#2C3E50] mb-6">Payment Method</h2>
+          <div class="space-y-4">
+          <label
+            class="flex items-center space-x-4 p-4 rounded-lg border border-gray-100 hover:border-[#E67E22] transition duration-200 cursor-pointer">
+            <input type="radio" name="payment_method" value="credit_card" checked
+            class="w-5 h-5 text-[#E67E22] focus:ring-[#E67E22] border-gray-300 transition duration-200">
+            <span class="text-gray-700 font-light">Credit Card</span>
+          </label>
+          <label
+            class="flex items-center space-x-4 p-4 rounded-lg border border-gray-100 hover:border-[#E67E22] transition duration-200 cursor-pointer">
+            <input type="radio" name="payment_method" value="bank_transfer"
+            class="w-5 h-5 text-[#E67E22] focus:ring-[#E67E22] border-gray-300 transition duration-200">
+            <span class="text-gray-700 font-light">Bank Transfer</span>
+          </label>
+          <label
+            class="flex items-center space-x-4 p-4 rounded-lg border border-gray-100 hover:border-[#E67E22] transition duration-200 cursor-pointer">
+            <input type="radio" name="payment_method" value="e_wallet"
+            class="w-5 h-5 text-[#E67E22] focus:ring-[#E67E22] border-gray-300 transition duration-200">
+            <span class="text-gray-700 font-light">E-Wallet</span>
+          </label>
+          </div>
+        </div>
+        </form>
+      </div>
+
+      <!-- Right Column: Order Summary -->
+      <div class="space-y-8">
+        <div class="bg-white rounded-xl border border-gray-100 p-8 shadow-sm">
+        <h2 class="text-xl font-light text-[#2C3E50] mb-6">Order Summary</h2>
+        <div class="space-y-6">
+          @foreach($cart->items as $item)
+        <div class="flex justify-between items-center py-4 border-b border-gray-100">
+        <div>
+        <span class="font-light text-gray-900">{{ $item->product->name }}</span>
+        <span class="text-gray-500 text-sm block font-light">Quantity: {{ $item->quantity }}</span>
+        </div>
+        <span class="font-light text-[#E67E22]">${{ number_format($item->subtotal, 2) }}</span>
+        </div>
+      @endforeach
+
+          <div class="space-y-4 pt-4">
+          <div class="flex justify-between text-gray-600 font-light">
+            <span>Subtotal</span>
+            <span>${{ number_format($cart->subtotal, 2) }}</span>
+          </div>
+          <div class="flex justify-between text-gray-600 font-light">
+            <span>Shipping</span>
+            <span id="shipping-cost">${{ number_format($standardShippingCost, 2) }}</span>
+          </div>
+          <div class="flex justify-between text-lg font-light text-[#2C3E50] pt-4 border-t border-gray-100">
+            <span>Total</span>
+            <span id="total-cost">${{ number_format($cart->subtotal + $standardShippingCost, 2) }}</span>
+          </div>
+          </div>
+
+          <button type="submit" form="checkout-form"
+          class="w-full bg-transparent border-2 border-[#2C3E50] text-[#2C3E50] uppercase tracking-wider px-12 py-4 hover:bg-[#2C3E50] hover:text-white transition-all duration-300 font-light focus:outline-none focus:ring-2 focus:ring-[#2C3E50] focus:ring-offset-2">
+          Place Order
+          </button>
+        </div>
+        </div>
+      </div>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  @push('scripts')
     <script>
-        function checkout() {
-            return {
-                steps: ['Shipping Address', 'Shipping Method', 'Payment Method', 'Review Order'],
-                currentStep: 0,
-                selectedShippingAddress: null,
-                selectedShippingMethod: null,
-                selectedPaymentMethod: null,
-                selectedShippingCost: 0,
-                standardShippingCost: 10,
-                expressShippingCost: 20,
-                overnightShippingCost: 30,
-                orderNotes: '',
-                summary: @json($summary),
-                newAddress: {
-                    type: 'shipping',
-                    full_name: '',
-                    phone: '',
-                    address_line1: '',
-                    address_line2: '',
-                    city: '',
-                    state: '',
-                    postal_code: '',
-                    country: '',
-                    is_default: false
-                },
-
-                nextStep() {
-                    if (this.validateCurrentStep()) {
-                        this.currentStep++;
-                    }
-                },
-
-                previousStep() {
-                    this.currentStep--;
-                },
-
-                validateCurrentStep() {
-                    switch (this.currentStep) {
-                        case 0:
-                            if (!this.selectedShippingAddress) {
-                                alert('Please select or add a shipping address');
-                                return false;
-                            }
-                            break;
-                        case 1:
-                            if (!this.selectedShippingMethod) {
-                                alert('Please select a shipping method');
-                                return false;
-                            }
-                            break;
-                        case 2:
-                            if (!this.selectedPaymentMethod) {
-                                alert('Please select a payment method');
-                                return false;
-                            }
-                            break;
-                    }
-                    return true;
-                },
-
-                selectShippingAddress(addressId) {
-                    this.selectedShippingAddress = addressId;
-                    this.calculateShipping();
-                },
-
-                selectShippingMethod(method) {
-                    this.selectedShippingMethod = method;
-                    this.calculateShipping();
-                },
-
-                selectPaymentMethod(method) {
-                    this.selectedPaymentMethod = method;
-                },
-
-                calculateShipping() {
-                    if (this.selectedShippingAddress && this.selectedShippingMethod) {
-                        fetch('/checkout/calculate-shipping', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                            },
-                            body: JSON.stringify({
-                                address_id: this.selectedShippingAddress,
-                                shipping_method: this.selectedShippingMethod
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                this.selectedShippingCost = data.shipping_cost;
-                                this.summary.total = data.total;
-                                this.summary.formatted_total = data.formatted_total;
-                            }
-                        });
-                    }
-                },
-
-                saveAddress() {
-                    fetch('/checkout/address', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        body: JSON.stringify(this.newAddress)
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            this.selectedShippingAddress = data.address.id;
-                            this.calculateShipping();
-                            // Reset form
-                            this.newAddress = {
-                                type: 'shipping',
-                                full_name: '',
-                                phone: '',
-                                address_line1: '',
-                                address_line2: '',
-                                city: '',
-                                state: '',
-                                postal_code: '',
-                                country: '',
-                                is_default: false
-                            };
-                        }
-                    });
-                },
-
-                placeOrder() {
-                    fetch('/checkout/process-payment', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        body: JSON.stringify({
-                            shipping_address_id: this.selectedShippingAddress,
-                            payment_method: this.selectedPaymentMethod,
-                            shipping_method: this.selectedShippingMethod,
-                            shipping_cost: this.selectedShippingCost,
-                            notes: this.orderNotes
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            window.location.href = data.redirect_url;
-                        } else {
-                            alert(data.message);
-                        }
-                    });
-                },
-
-                formatPrice(price) {
-                    return 'Rp ' + new Intl.NumberFormat('id-ID').format(price);
-                },
-
-                getSelectedAddressDetails() {
-                    const address = @json($addresses).find(a => a.id === this.selectedShippingAddress);
-                    if (!address) return '';
-                    return `${address.full_name}\n${address.address_line1}\n${address.address_line2 ? address.address_line2 + '\n' : ''}${address.city}, ${address.state} ${address.postal_code}\n${address.country}\n${address.phone}`;
-                },
-
-                getSelectedShippingMethodDetails() {
-                    const methods = {
-                        standard: 'Standard Shipping (3-5 business days)',
-                        express: 'Express Shipping (1-2 business days)',
-                        overnight: 'Overnight Shipping (Next business day)'
-                    };
-                    return methods[this.selectedShippingMethod] || '';
-                },
-
-                getSelectedPaymentMethodDetails() {
-                    const methods = {
-                        credit_card: 'Credit Card',
-                        bank_transfer: 'Bank Transfer',
-                        e_wallet: 'E-Wallet'
-                    };
-                    return methods[this.selectedPaymentMethod] || '';
-                }
-            }
-        }
+    document.querySelectorAll('input[name="shipping_method"]').forEach(radio => {
+    radio.addEventListener('change', function () {
+      const shippingCost = parseFloat(this.dataset.cost);
+      const subtotal = {{ $cart->subtotal }};
+      document.getElementById('shipping-cost').textContent = `$${shippingCost.toFixed(2)}`;
+      document.getElementById('total-cost').textContent = `$${(subtotal + shippingCost).toFixed(2)}`;
+    });
+    });
     </script>
-    @endpush
-</x-app-layout> 
+  @endpush
+@endsection
