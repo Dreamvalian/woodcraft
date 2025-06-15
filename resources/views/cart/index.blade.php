@@ -1,116 +1,183 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="bg-white font-sans">
+<div class="min-h-screen bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 class="text-3xl font-bold text-wood-900 mb-8">Shopping Cart</h1>
+        <div class="max-w-3xl mx-auto">
+            <h1 class="text-2xl font-light text-gray-900 mb-8">Shopping Cart</h1>
 
-        @if(count($items) > 0)
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Cart Items -->
-                <div class="lg:col-span-2 space-y-4">
-                    @foreach($items as $item)
-                        <div class="flex items-center space-x-4 p-4 bg-white rounded-lg shadow">
-                            <img src="{{ $item['shop']->image_url }}" alt="{{ $item['shop']->name }}" class="w-24 h-24 object-cover rounded">
-                            <div class="flex-1">
-                                <h3 class="text-lg font-medium text-wood-900">
-                                    <a href="{{ route('shops.show', $item['shop']) }}" class="hover:text-wood-600">
-                                        {{ $item['shop']->name }}
-                                    </a>
-                                </h3>
-                                <p class="text-wood-600">{{ $item['shop']->formatted_price }}</p>
-                            </div>
-                            <div class="flex items-center space-x-4">
-                                <form action="{{ route('cart.update') }}" method="POST" class="flex items-center">
-                                    @csrf
-                                    <input type="hidden" name="shop_id" value="{{ $item['shop']->id }}">
-                                    <div class="flex items-center border border-wood-200 rounded-lg">
-                                        <button 
-                                            type="button"
-                                            onclick="this.form.quantity.value = Math.max(1, parseInt(this.form.quantity.value) - 1)"
-                                            class="px-3 py-2 text-wood-600 hover:text-wood-700"
-                                        >
-                                            <i class="fas fa-minus"></i>
-                                        </button>
-                                        <input 
-                                            type="number" 
-                                            name="quantity"
-                                            value="{{ $item['quantity'] }}"
-                                            min="1"
-                                            max="{{ $item['shop']->stock }}"
-                                            class="w-16 text-center border-0 focus:ring-0"
-                                            onchange="this.form.submit()"
-                                        >
-                                        <button 
-                                            type="button"
-                                            onclick="this.form.quantity.value = Math.min({{ $item['shop']->stock }}, parseInt(this.form.quantity.value) + 1)"
-                                            class="px-3 py-2 text-wood-600 hover:text-wood-700"
-                                        >
-                                            <i class="fas fa-plus"></i>
-                                        </button>
-                                    </div>
-                                </form>
-                                <form action="{{ route('cart.remove', $item['shop']->id) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="text-red-600 hover:text-red-700">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-lg font-medium text-wood-900">${{ number_format($item['subtotal'], 2) }}</p>
-                            </div>
-                        </div>
-                    @endforeach
-
-                    <div class="flex justify-between items-center pt-4">
-                        <form action="{{ route('cart.clear') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="text-wood-600 hover:text-wood-700">
-                                Clear Cart
-                            </button>
-                        </form>
-                        <a href="{{ route('shops.index') }}" class="text-wood-600 hover:text-wood-700">
-                            Continue Shopping
-                        </a>
+            @if(session('success'))
+                <div class="mb-6 bg-white border border-green-100 rounded-lg p-4">
+                    <div class="flex items-center text-green-600">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        <p class="text-sm">{{ session('success') }}</p>
                     </div>
                 </div>
+            @endif
 
-                <!-- Order Summary -->
-                <div class="lg:col-span-1">
-                    <div class="bg-wood-50 rounded-lg p-6">
-                        <h2 class="text-lg font-medium text-wood-900 mb-4">Order Summary</h2>
+            @if(session('error'))
+                <div class="mb-6 bg-white border border-red-100 rounded-lg p-4">
+                    <div class="flex items-center text-red-600">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <p class="text-sm">{{ session('error') }}</p>
+                    </div>
+                </div>
+            @endif
+
+            @if($cart->items->count() > 0)
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <!-- Cart Items -->
+                    <div class="divide-y divide-gray-100">
+                        @foreach($cart->items as $item)
+                            <div class="p-6">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 w-20 h-20">
+                                        <img src="{{ $item->product->image_url }}" 
+                                             alt="{{ $item->product->name }}"
+                                             class="w-full h-full object-cover rounded-md">
+                                    </div>
+
+                                    <div class="ml-6 flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h3 class="text-sm font-medium text-gray-900">
+                                                    <a href="{{ route('shops.show', $item->product->slug) }}" 
+                                                       class="hover:text-gray-600">
+                                                        {{ $item->product->name }}
+                                                    </a>
+                                                </h3>
+                                                <p class="mt-1 text-sm text-gray-500">
+                                                    {{ $item->product->formatted_price }}
+                                                </p>
+                                            </div>
+
+                                            <div class="flex items-center space-x-4">
+                                                <form action="{{ route('cart.update', $item->id) }}" 
+                                                      method="POST" 
+                                                      class="flex items-center">
+                                                    @csrf
+                                                    <div class="flex items-center border border-gray-200 rounded-md">
+                                                        <button type="button" 
+                                                                onclick="decrementQuantity(this)"
+                                                                class="px-3 py-1 text-gray-400 hover:text-gray-600">
+                                                            <i class="fas fa-minus text-xs"></i>
+                                                        </button>
+                                                        <input type="number" 
+                                                               name="quantity" 
+                                                               value="{{ $item->quantity }}" 
+                                                               min="1"
+                                                               max="{{ $item->product->stock }}"
+                                                               class="w-12 text-center border-0 focus:ring-0 text-sm"
+                                                               onchange="this.form.submit()">
+                                                        <button type="button" 
+                                                                onclick="incrementQuantity(this)"
+                                                                class="px-3 py-1 text-gray-400 hover:text-gray-600">
+                                                            <i class="fas fa-plus text-xs"></i>
+                                                        </button>
+                                                    </div>
+                                                </form>
+
+                                                <form action="{{ route('cart.remove', $item->id) }}" 
+                                                      method="POST">
+                                                    @csrf
+                                                    <button type="submit" 
+                                                            class="text-gray-400 hover:text-red-500">
+                                                        <i class="fas fa-trash-alt text-sm"></i>
+                                                    </button>
+                                                </form>
+
+                                                <p class="text-sm font-medium text-gray-900">
+                                                    {{ $item->formatted_subtotal }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="border-t border-gray-100 bg-gray-50 p-6">
                         <div class="space-y-4">
-                            <div class="flex justify-between">
-                                <span class="text-wood-600">Subtotal</span>
-                                <span class="text-wood-900">${{ number_format($total, 2) }}</span>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Subtotal</span>
+                                <span class="text-gray-900">{{ $cart->formatted_total }}</span>
                             </div>
-                            <div class="flex justify-between">
-                                <span class="text-wood-600">Shipping</span>
-                                <span class="text-wood-900">Calculated at checkout</span>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Shipping</span>
+                                <span class="text-gray-900">Calculated at checkout</span>
                             </div>
-                            <div class="border-t border-wood-200 pt-4">
+                            <div class="border-t border-gray-200 pt-4">
                                 <div class="flex justify-between">
-                                    <span class="text-lg font-medium text-wood-900">Total</span>
-                                    <span class="text-lg font-medium text-wood-900">${{ number_format($total, 2) }}</span>
+                                    <span class="text-base font-medium text-gray-900">Total</span>
+                                    <span class="text-base font-medium text-gray-900">{{ $cart->formatted_total }}</span>
                                 </div>
                             </div>
                         </div>
-                        <button class="w-full mt-6 bg-wood-600 text-white px-6 py-3 rounded-lg hover:bg-wood-700 transition-colors duration-200">
-                            Proceed to Checkout
-                        </button>
+
+                        <div class="mt-6 space-y-4">
+                            <a href="{{ route('checkout.index') }}"
+                               class="block w-full bg-gray-900 text-white text-center px-6 py-3 rounded-md hover:bg-gray-800 transition text-sm font-medium">
+                                Proceed to Checkout
+                            </a>
+                            
+                            <div class="flex justify-between items-center">
+                                <form action="{{ route('cart.clear') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" 
+                                            class="text-sm text-gray-500 hover:text-gray-700">
+                                        Clear Cart
+                                    </button>
+                                </form>
+                                <a href="{{ route('shops.index') }}" 
+                                   class="text-sm text-gray-500 hover:text-gray-700">
+                                    Continue Shopping
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        @else
-            <div class="text-center py-12">
-                <h2 class="text-2xl font-medium text-wood-900 mb-4">Your cart is empty</h2>
-                <p class="text-wood-600 mb-8">Looks like you haven't added any items to your cart yet.</p>
-                <a href="{{ route('shops.index') }}" class="inline-block bg-wood-600 text-white px-6 py-3 rounded-lg hover:bg-wood-700 transition-colors duration-200">
-                    Start Shopping
-                </a>
-            </div>
-        @endif
+            @else
+                <div class="text-center py-16 bg-white rounded-lg shadow-sm">
+                    <div class="w-16 h-16 mx-auto mb-4 text-gray-300">
+                        <i class="fas fa-shopping-cart text-4xl"></i>
+                    </div>
+                    <h2 class="text-lg font-medium text-gray-900 mb-2">Your cart is empty</h2>
+                    <p class="text-sm text-gray-500 mb-6">Looks like you haven't added any items to your cart yet.</p>
+                    <a href="{{ route('shops.index') }}"
+                       class="inline-block bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-800 transition text-sm font-medium">
+                        Start Shopping
+                    </a>
+                </div>
+            @endif
+        </div>
     </div>
 </div>
-@endsection 
+
+@push('scripts')
+<script>
+    function incrementQuantity(button) {
+        const input = button.parentElement.querySelector('input');
+        const max = parseInt(input.getAttribute('max'));
+        const currentValue = parseInt(input.value);
+
+        if (currentValue < max) {
+            input.value = currentValue + 1;
+            input.form.submit();
+        }
+    }
+
+    function decrementQuantity(button) {
+        const input = button.parentElement.querySelector('input');
+        const min = parseInt(input.getAttribute('min'));
+        const currentValue = parseInt(input.value);
+
+        if (currentValue > min) {
+            input.value = currentValue - 1;
+            input.form.submit();
+        }
+    }
+</script>
+@endpush
+@endsection
