@@ -25,7 +25,7 @@ class OrderController extends Controller
             abort(403);
         }
 
-        $order->load(['items.product', 'items.product.images']);
+        $order->load(['items.product']);
 
         return view('user.orders.show', compact('order'));
     }

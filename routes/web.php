@@ -64,11 +64,13 @@ Route::get('/shops', [ProductController::class, 'index'])->name('shops.index');
 Route::get('/shops/{product:slug}', [ProductController::class, 'show'])->name('shops.show');
 Route::get('/api/shops/{shop}/quick-view', [ProductController::class, 'quickView'])->name('shops.quick-view');
 
-// Checkout Routes
+// Checkout routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
+    Route::post('/checkout/address', [CheckoutController::class, 'saveAddress'])->name('checkout.address.save');
+    Route::post('/checkout/shipping', [CheckoutController::class, 'calculateShipping'])->name('checkout.shipping.calculate');
 });
 
 // ========== After Login ==========
@@ -97,11 +99,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::patch('/users/{user}/role', [App\Http\Controllers\Admin\UserController::class, 'updateRole'])->name('users.update-role');
 });
 
-// Order Routes
+// Order routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/orders', [App\Http\Controllers\User\OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [App\Http\Controllers\User\OrderController::class, 'show'])->name('orders.show');
-    Route::post('/orders/{order}/cancel', [App\Http\Controllers\User\OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 });
 
 // Notification Routes
