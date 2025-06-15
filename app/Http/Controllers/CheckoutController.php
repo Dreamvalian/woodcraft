@@ -30,13 +30,24 @@ class CheckoutController extends Controller
 
         $addresses = Address::where('user_id', auth()->id())->get();
 
-        return view('checkout.index', compact('cart', 'addresses'));
+        // Define shipping costs
+        $standardShippingCost = 5.00;
+        $expressShippingCost = 10.00;
+        $overnightShippingCost = 20.00;
+
+        return view('checkout.index', compact(
+            'cart',
+            'addresses',
+            'standardShippingCost',
+            'expressShippingCost',
+            'overnightShippingCost'
+        ));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'shipping_address_id' => 'required|exists:addresses,id',
+            'address_id' => 'required|exists:addresses,id',
             'shipping_method' => 'required|in:standard,express,overnight',
             'payment_method' => 'required|in:credit_card,bank_transfer,e_wallet',
             'notes' => 'nullable|string|max:500',
@@ -51,19 +62,24 @@ class CheckoutController extends Controller
         try {
             DB::beginTransaction();
 
+            // Calculate shipping cost based on method
+            $shippingCost = $this->calculateShippingCost($request->shipping_method);
+
             // Create the order
             $order = Order::create([
                 'user_id' => auth()->id(),
                 'order_number' => 'ORD-' . strtoupper(Str::random(10)),
-                'shipping_address_id' => $request->shipping_address_id,
+                'shipping_address_id' => $request->address_id,
+                'billing_address_id' => $request->address_id, // Using shipping address as billing address
                 'shipping_method' => $request->shipping_method,
                 'payment_method' => $request->payment_method,
                 'notes' => $request->notes,
                 'subtotal' => $cart->subtotal,
-                'shipping_cost' => $this->calculateShippingCost($request->shipping_method),
-                'total' => $cart->subtotal + $this->calculateShippingCost($request->shipping_method),
+                'shipping_cost' => $shippingCost,
+                'total' => $cart->subtotal + $shippingCost,
                 'status' => 'pending',
                 'payment_status' => 'pending',
+                'placed_at' => now(),
             ]);
 
             // Create order items
@@ -73,6 +89,7 @@ class CheckoutController extends Controller
                     'quantity' => $item->quantity,
                     'price' => $item->product->price,
                     'total' => $item->quantity * $item->product->price,
+                    'options' => $item->options ?? null,
                 ]);
 
                 // Update product stock
@@ -92,17 +109,10 @@ class CheckoutController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Order placed successfully!',
-                'redirect_url' => route('checkout.success', $order)
-            ]);
+            return redirect()->route('checkout.success', $order);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while processing your order. Please try again.'
-            ], 500);
+            return back()->with('error', 'An error occurred while processing your order. Please try again.');
         }
     }
 

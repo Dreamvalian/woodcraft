@@ -43,9 +43,16 @@ class Cart extends Model
         return $this->items->sum('subtotal');
     }
 
+    public function getSubtotalAttribute()
+    {
+        return $this->items->sum(function ($item) {
+            return $item->quantity * $item->price;
+        });
+    }
+
     public function getFormattedTotalAttribute()
     {
-        return 'Rp ' . number_format($this->total, 0, ',', '.');
+        return '$' . number_format($this->subtotal, 2);
     }
 
     public function getItemCountAttribute()
@@ -57,7 +64,7 @@ class Cart extends Model
     public static function getOrCreateCart($userId = null)
     {
         $sessionId = session()->getId();
-        
+
         return static::firstOrCreate(
             [
                 'user_id' => $userId,
@@ -70,7 +77,7 @@ class Cart extends Model
     public function addItem($productId, $quantity = 1, $options = [])
     {
         $product = Product::findOrFail($productId);
-        
+
         // Validate quantity
         if ($quantity < $product->min_order_quantity) {
             throw new \Exception('Quantity cannot be less than minimum order quantity.');
@@ -91,7 +98,7 @@ class Cart extends Model
 
         if ($existingItem) {
             $newQuantity = $existingItem->quantity + $quantity;
-            
+
             if ($newQuantity > $product->max_order_quantity) {
                 throw new \Exception('Total quantity cannot exceed maximum order quantity.');
             }
@@ -161,4 +168,4 @@ class Cart extends Model
         }
         return true;
     }
-} 
+}
