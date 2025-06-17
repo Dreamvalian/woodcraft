@@ -5,9 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ShopController;
-use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\UnsubscribeController;
@@ -65,21 +64,13 @@ Route::get('/shops', [ProductController::class, 'index'])->name('shops.index');
 Route::get('/shops/{product:slug}', [ProductController::class, 'show'])->name('shops.show');
 Route::get('/api/shops/{shop}/quick-view', [ProductController::class, 'quickView'])->name('shops.quick-view');
 
-// Cart Routes
-Route::middleware(['web'])->group(function () {
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
-    Route::post('/cart/remove/{shop}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-    Route::get('/cart/summary', [CartController::class, 'summary'])->name('cart.summary');
-});
-
-// Checkout Routes
+// Checkout routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
+    Route::post('/checkout/address', [CheckoutController::class, 'saveAddress'])->name('checkout.address.save');
+    Route::post('/checkout/shipping', [CheckoutController::class, 'calculateShipping'])->name('checkout.shipping.calculate');
 });
 
 // ========== After Login ==========
@@ -108,19 +99,20 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::patch('/users/{user}/role', [App\Http\Controllers\Admin\UserController::class, 'updateRole'])->name('users.update-role');
 });
 
-// Order Routes
+// Order routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/orders', [App\Http\Controllers\User\OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [App\Http\Controllers\User\OrderController::class, 'show'])->name('orders.show');
-    Route::post('/orders/{order}/cancel', [App\Http\Controllers\User\OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 });
 
 // Notification Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
-    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
-    Route::delete('/notifications', [NotificationController::class, 'clearAll'])->name('notifications.clear-all');
+    Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
+    Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'delete'])->name('notifications.delete');
+    Route::delete('/notifications', [NotificationController::class, 'deleteAll'])->name('notifications.delete-all');
 });
 
 // Include Modular Route Files

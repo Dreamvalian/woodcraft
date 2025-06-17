@@ -37,8 +37,8 @@
       <h4 class="text-sm text-[#E67E22] uppercase mb-3 tracking-widest font-light">Crafting Excellence</h4>
       <h1 class="text-6xl font-light mb-6 leading-tight text-[#2C3E50]">Timeless Wood <br>Artistry</h1>
       <p class="text-gray-600 mb-8 text-lg max-w-md leading-relaxed font-light">
-      Kami dengan bangga memperkenalkan brand WoodCraft, sebuah perusahaan yang memproduksi kayu solid dan furnitur
-      unik, serta menjadi solusi eksklusif dari berbagai kebutuhan interior kayu berkualitas.
+      We proudly introduce WoodCraft, a company that produces solid wood and unique furniture, becoming an exclusive
+      solution for various high-quality wooden interior needs.
       </p>
       <a href="{{ route('shops.index') }}"
       class="relative bg-transparent border-2 border-[#2C3E50] text-[#2C3E50] uppercase tracking-wider px-12 py-4 hover:bg-[#2C3E50] hover:text-white transition-all duration-300 font-light focus:outline-none focus:ring-2 focus:ring-[#2C3E50] focus:ring-offset-2 inline-block">
@@ -119,8 +119,8 @@
         <div class="px-24 transform translate-y-4 opacity-0 transition-all duration-700 slide-content">
         <h2 class="text-white text-5xl font-light mb-4">Natural <br>Excellence</h2>
         <p class="text-white text-lg max-w-xl leading-relaxed font-light">
-          WoodCraft memiliki hutan sendiri untuk memastikan kontrol penuh atas kualitas bahan baku yang digunakan
-          dalam semua produk kami.
+          WoodCraft owns its own forest to ensure complete control over the quality of raw materials used in all our
+          products.
         </p>
         </div>
       </div>
@@ -143,8 +143,8 @@
         <div class="px-24 transform translate-y-4 opacity-0 transition-all duration-700 slide-content">
         <h2 class="text-white text-5xl font-light mb-4">Crafting <br>Perfection</h2>
         <p class="text-white text-lg max-w-xl leading-relaxed font-light">
-          WoodCraft Workshop adalah ruang kerja para profesional pembuat kayu kami, dirancang untuk membawa hasil
-          terbaik dari keahlian dan detail artistik dalam setiap produk.
+          The WoodCraft Workshop is the workspace of our professional woodworkers, designed to bring out the best
+          results from their expertise and artistic detail in every product.
         </p>
         </div>
       </div>
@@ -167,7 +167,7 @@
         <div class="px-24 text-center transform translate-y-4 opacity-0 transition-all duration-700 slide-content">
         <h2 class="text-white text-5xl font-light mb-4">Client <br>Stories</h2>
         <p class="text-white text-lg max-w-xl leading-relaxed font-light">
-          "Keindahan kayunya sangat memukau. Ini benar-benar investasi estetika yang berkelas."
+          "The beauty of the wood is absolutely stunning. This is truly a classy aesthetic investment."
         </p>
         <p class="text-white mt-6 font-light">Alex Johnson</p>
         </div>

@@ -42,12 +42,12 @@ class CartItem extends Model
     // Accessors
     public function getSubtotalAttribute()
     {
-        return $this->price * $this->quantity;
+        return $this->quantity * $this->price;
     }
 
     public function getFormattedSubtotalAttribute()
     {
-        return 'Rp ' . number_format($this->subtotal, 0, ',', '.');
+        return '$' . number_format($this->subtotal, 2);
     }
 
     // Methods
@@ -68,4 +68,4 @@ class CartItem extends Model
         $this->update(['quantity' => $quantity]);
         return $this;
     }
-} 
+}

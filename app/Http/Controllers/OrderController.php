@@ -16,56 +16,45 @@ class OrderController extends Controller
 
 	public function index()
 	{
-		$orders = Order::with(['orderItems.product', 'orderItems.product.productImages'])
-			->where('user_id', auth()->id())
-			->latest()
+		$orders = auth()->user()->orders()
+			->with(['items.product', 'shippingAddress', 'billingAddress'])
+			->latest('placed_at')
 			->paginate(10);
 
-		return view('orders.index', compact('orders'));
+		return view('user.orders.index', compact('orders'));
 	}
 
 	public function show(Order $order)
 	{
-		$this->authorize('view', $order);
+		// Ensure the user can only view their own orders
+		if ($order->user_id !== auth()->id()) {
+			abort(403);
+		}
 
-		$order->load(['orderItems.product', 'orderItems.product.productImages', 'user']);
+		$order->load(['items.product', 'shippingAddress', 'billingAddress']);
 
-		return view('orders.show', compact('order'));
+		return view('user.orders.show', compact('order'));
 	}
 
 	public function cancel(Order $order)
 	{
-		$this->authorize('cancel', $order);
+		// Ensure the user can only cancel their own orders
+		if ($order->user_id !== auth()->id()) {
+			abort(403);
+		}
 
+		// Only allow cancellation of pending or processing orders
 		if (!in_array($order->status, ['pending', 'processing'])) {
-			return redirect()->back()
-				->with('error', 'This order cannot be cancelled.');
+			return back()->with('error', 'This order cannot be cancelled.');
 		}
 
-		try {
-			DB::beginTransaction();
+		$order->update([
+			'status' => 'cancelled',
+			'notes' => $order->notes . "\nOrder cancelled by customer on " . now()->format('Y-m-d H:i:s')
+		]);
 
-			// Update order status
-			$order->update([
-				'status' => 'cancelled',
-				'payment_status' => 'refunded'
-			]);
-
-			// Restore product stock
-			foreach ($order->orderItems as $item) {
-				$item->product->increment('stock', $item->quantity);
-			}
-
-			DB::commit();
-
-			return redirect()->back()
-				->with('success', 'Order cancelled successfully.');
-
-		} catch (\Exception $e) {
-			DB::rollBack();
-			return redirect()->back()
-				->with('error', 'An error occurred while cancelling the order. Please try again.');
-		}
+		return redirect()->route('orders.show', $order)
+			->with('success', 'Order has been cancelled successfully.');
 	}
 
 	public function track(Order $order)
