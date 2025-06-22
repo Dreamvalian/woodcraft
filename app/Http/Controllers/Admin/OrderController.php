@@ -28,9 +28,9 @@ class OrderController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('order_number', 'like', "%{$search}%")
-                  ->orWhereHas('user', function ($uq) use ($search) {
-                      $uq->where('email', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('user', function ($uq) use ($search) {
+                        $uq->where('email', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -65,4 +65,13 @@ class OrderController extends Controller
             return redirect()->back()->with('error', 'Failed to update order status.');
         }
     }
-} 
+
+    public function approve(Order $order)
+    {
+        if ($order->status !== 'pending') {
+            return redirect()->back()->with('error', 'Only pending orders can be approved.');
+        }
+        $order->update(['status' => 'approved']);
+        return redirect()->back()->with('success', 'Order approved successfully.');
+    }
+}

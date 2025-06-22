@@ -102,43 +102,6 @@
 
       {{-- Utility Icons Section --}}
       <div class="flex items-center space-x-8">
-        {{-- Search --}}
-        <div class="relative" x-data="{ open: false }">
-          <button @click="open = !open"
-            class="text-gray-500 hover:text-[#E67E22] focus:outline-none transition-colors duration-300">
-            <i class="fas fa-search"></i>
-          </button>
-
-          <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-            x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100"
-            x-transition:leave-end="opacity-0 scale-95"
-            class="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg p-4 z-50">
-            {{-- Decorative corner elements --}}
-            <div class="absolute -top-2 -left-2 w-4 h-4 opacity-10">
-              <svg viewBox="0 0 100 100" class="w-full h-full">
-                <path d="M0,0 L100,0 L0,100" stroke="currentColor" fill="none" stroke-width="2" />
-                <path d="M20,0 L100,0" stroke="currentColor" fill="none" stroke-width="1" />
-              </svg>
-            </div>
-            <div class="absolute -bottom-2 -right-2 w-4 h-4 opacity-10">
-              <svg viewBox="0 0 100 100" class="w-full h-full">
-                <path d="M0,0 L100,0 L0,100" stroke="currentColor" fill="none" stroke-width="2" />
-                <path d="M20,0 L100,0" stroke="currentColor" fill="none" stroke-width="1" />
-              </svg>
-            </div>
-            <form action="{{ route('search') }}" method="GET" class="space-y-4">
-              <div class="flex">
-                <input type="text" name="q" placeholder="Search our shops..."
-                  class="flex-1 min-w-0 block w-full px-4 py-1 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-transparent"
-                  value="{{ request('q') }}">
-                <x-button type="submit" class="rounded-l-none">
-                  <i class="fas fa-search"></i>
-                </x-button>
-              </div>
-            </form>
-          </div>
-        </div>
 
         {{-- Shopping Cart --}}
         <a href="{{ route('cart.index') }}"
@@ -207,10 +170,7 @@
             class="block px-4 py-2 text-sm text-[#2C3E50] hover:bg-gray-50 transition-colors duration-300 font-light">
             <i class="fas fa-shopping-bag mr-2"></i> Orders
           </a>
-          <a href="{{ route('notifications.index') }}"
-            class="block px-4 py-2 text-sm text-[#2C3E50] hover:bg-gray-50 transition-colors duration-300 font-light">
-            <i class="fas fa-bell mr-2"></i> Notifications
-          </a>
+          {{-- Removed Notifications Link --}}
 
           {{-- Divider --}}
           <div class="border-t border-gray-100 my-1"></div>

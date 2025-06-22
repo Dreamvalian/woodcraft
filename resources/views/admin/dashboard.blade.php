@@ -170,23 +170,31 @@
       </div>
       <div class="space-y-4">
         @foreach($recentOrders as $order)
-      <div class="p-4 bg-gray-50 rounded-xl">
-      <div class="flex justify-between items-start mb-2">
+        <div class="p-4 bg-gray-50 rounded-xl">
+        <div class="flex justify-between items-start mb-2">
         <div>
         <p class="font-light text-[#2C3E50]">Order #{{ $order->id }}</p>
         <p class="text-sm text-[#7f8c8d] font-light">
-        {{ $order->created_at->format('M d, Y H:i') }}
+          {{ $order->created_at->format('M d, Y H:i') }}
         </p>
         </div>
         <span
         class="px-3 py-1 text-sm rounded-full font-light {{ $order->status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
         {{ ucfirst($order->status) }}
         </span>
-      </div>
-      <div class="text-sm text-[#7f8c8d] font-light">
+        </div>
+        <div class="text-sm text-[#7f8c8d] font-light">
         {{ $order->items->count() }} items • Total: {{ $order->formatted_total }}
-      </div>
-      </div>
+        </div>
+        @if($order->status === 'pending')
+      <form action="{{ route('admin.orders.approve', $order) }}" method="POST" class="mt-2">
+        @csrf
+        @method('PATCH')
+        <button type="submit"
+        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-all font-light text-sm">Approve</button>
+      </form>
+      @endif
+        </div>
       @endforeach
       </div>
       </div>
