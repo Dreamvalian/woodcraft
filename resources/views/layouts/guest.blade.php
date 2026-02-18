@@ -8,17 +8,18 @@
 
   <title>{{ config('app.name', 'Laravel') }}</title>
 
-  <!-- Fonts -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
-
-  <!-- Scripts -->
-  @vite(['resources/css/app.css', 'resources/js/app.js'])
+  <link rel="stylesheet" href="{{ mix('css/app.css') }}">
 </head>
 
-<body>
-  <div class="font-sans text-gray-900 antialiased">
+<body class="bg-gray-50">
+  <a href="#guest-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-gray-900 focus:rounded-md focus:shadow-soft">
+    Skip to main content
+  </a>
+  <div id="guest-content" class="font-sans text-gray-900 antialiased">
     {{ $slot }}
   </div>
+  <script src="{{ mix('js/app.js') }}" defer></script>
 </body>
 
 </html>

@@ -97,10 +97,10 @@
 									</div>
 									<div class="mt-4 md:mt-0">
 										<span class="px-4 py-2 rounded-full text-sm font-light
-																@if($order->status === 'completed') bg-green-100 text-green-800
-																@elseif($order->status === 'cancelled') bg-red-100 text-red-800
-																	@else bg-yellow-100 text-yellow-800
-																@endif">
+																						@if($order->status === 'completed') bg-green-100 text-green-800
+																						@elseif($order->status === 'cancelled') bg-red-100 text-red-800
+																							@else bg-yellow-100 text-yellow-800
+																						@endif">
 											{{ ucfirst($order->status) }}
 										</span>
 									</div>
@@ -110,16 +110,26 @@
 									<div class="space-y-6">
 										@foreach($order->items as $item)
 											<div class="flex items-center space-x-6">
-												@if($item->product->image_url)
+												@if($item->product)
 													<div class="flex-shrink-0">
 														<img src="{{ $item->product->image_url }}" alt="{{ $item->product->name }}"
 															class="h-20 w-20 object-cover rounded-lg">
 													</div>
+													<div class="flex-1 min-w-0">
+														<p class="text-lg font-light text-[#2C3E50]">{{ $item->product->name }}</p>
+														<p class="text-gray-600">Quantity: {{ $item->quantity }}</p>
+													</div>
+												@else
+													<div class="flex-shrink-0">
+														<div class="h-20 w-20 bg-gray-100 rounded-lg flex items-center justify-center">
+															<p class="text-xs text-gray-500">No Image</p>
+														</div>
+													</div>
+													<div class="flex-1 min-w-0">
+														<p class="text-lg font-light text-gray-500 italic">Product not available</p>
+														<p class="text-gray-600">Quantity: {{ $item->quantity }}</p>
+													</div>
 												@endif
-												<div class="flex-1 min-w-0">
-													<p class="text-lg font-light text-[#2C3E50]">{{ $item->product->name }}</p>
-													<p class="text-gray-600">Quantity: {{ $item->quantity }}</p>
-												</div>
 												<div class="text-right">
 													<p class="text-lg font-light text-[#2C3E50]">${{ number_format($item->price * $item->quantity, 2) }}
 													</p>

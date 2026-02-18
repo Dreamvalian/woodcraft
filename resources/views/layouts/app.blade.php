@@ -5,62 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
-    {{-- SEO Meta Tags --}}
     <title>@yield('title', 'Woodcraft - Handcrafted Wooden Products')</title>
     <meta name="description" content="@yield('meta_description', 'Discover our collection of handcrafted wooden products made with love and precision.')">
     <meta name="keywords" content="@yield('meta_keywords', 'woodcraft, wooden products, handmade, furniture, crafts')">
     <meta name="author" content="Woodcraft">
     
-    {{-- Open Graph / Social Media Meta Tags --}}
     <meta property="og:title" content="@yield('og_title', 'Woodcraft - Handcrafted Wooden Products')">
     <meta property="og:description" content="@yield('og_description', 'Discover our collection of handcrafted wooden products made with love and precision.')">
     <meta property="og:image" content="@yield('og_image', asset('images/og-default.jpg'))">
     <meta property="og:url" content="{{ url()->current() }}">
     
-    {{-- Favicon --}}
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"></script>
-    
-    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{{ mix('css/app.css') }}">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    {{-- Custom Styles --}}
-    <style>
-        [x-cloak] { display: none !important; }
-        .loading { @apply opacity-50 pointer-events-none; }
-        .fade-enter-active, .fade-leave-active { @apply transition-opacity duration-300; }
-        .fade-enter-from, .fade-leave-to { @apply opacity-0; }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: theme('colors.gray.100');
-        }
-        ::-webkit-scrollbar-thumb {
-            background: theme('colors.primary.300');
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: theme('colors.primary.400');
-        }
-    </style>
-    
     @stack('styles')
 </head>
 <body class="h-full font-sans antialiased text-gray-900 bg-gray-50">
-    {{-- Loading Overlay --}}
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-gray-900 focus:rounded-md focus:shadow-soft">
+        Skip to main content
+    </a>
     <div x-data="{ loading: false }" 
          x-on:loading.window="loading = true"
          x-on:loaded.window="loading = false"
@@ -79,7 +48,6 @@
         </div>
     </div>
 
-    {{-- Toast Notifications --}}
     <div x-data="{ 
         toasts: [],
         addToast(message, type = 'success') {
@@ -130,9 +98,7 @@
 
     @include('layouts.navigation')
     
-    {{-- Main content --}}
-    <main class="flex-grow">
-        {{-- Flash Messages --}}
+    <main id="main-content" class="flex-grow">
         @if(session('success'))
             <div x-data="{ show: true }"
                  x-init="window.dispatchEvent(new CustomEvent('notify', { 
@@ -156,14 +122,12 @@
     
     @include('layouts.footer')
     
-    {{-- Global Scripts --}}
+    <script src="{{ mix('js/app.js') }}" defer></script>
     <script>
-        // Handle loading states
         document.addEventListener('DOMContentLoaded', () => {
             window.dispatchEvent(new Event('loaded'));
         });
 
-        // Handle form submissions
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', () => {
                 window.dispatchEvent(new Event('loading'));

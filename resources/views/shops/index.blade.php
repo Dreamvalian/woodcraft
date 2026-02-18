@@ -17,9 +17,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <!-- Search -->
             <div class="mb-12">
-                <form action="{{ route('shops.index') }}" method="GET" class="max-w-xl mx-auto">
+                <form action="{{ route('shops.index') }}" method="GET" class="max-w-xl mx-auto" role="search" aria-label="Product search">
                     <div class="relative">
-                        <input type="text" name="search" value="{{ request('search') }}"
+                        <label for="search" class="sr-only">Search products</label>
+                        <input id="search" type="text" name="search" value="{{ request('search') }}"
                             placeholder="Search our collection..."
                             class="w-full pl-10 pr-4 py-3 text-sm border-0 bg-gray-50 rounded-lg focus:ring-2 focus:ring-gray-200">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
